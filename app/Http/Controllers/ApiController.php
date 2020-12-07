@@ -172,12 +172,14 @@ class ApiController extends Controller
 		$player = new player();
 		$player_info = $player->getPlayer($userid);
 		if ($player_info) {
-			$attack = $player_info->attack;
+			$attack = empty($player_info->attack) ? 0 : $player_info->attack;
 			$userid_idplayer = $player_info->id;
+			$sum_win = empty($player_info->sum_win) ? 0 : $player_info->sum_win;
+			$sum_lose = empty($player_info->sum_lose) ? 0 : $player_info->sum_lose;
 
 			$towerinfo = new towerinfo();
 			$result['playerbuilding'] = [];
-			$otherPlayer = $player->getOtherPlayerRandom($userid_idplayer, $attack);
+			$otherPlayer = $player->getOtherPlayerRandom($userid_idplayer, $attack, $sum_win, $sum_lose);
 			if ($otherPlayer) {
 				// random
 				$otherPlayer = $otherPlayer[array_rand($otherPlayer)];
@@ -263,14 +265,14 @@ class ApiController extends Controller
 		}
 
 		$player = new player();
-		$userid_idplayer = $player->updateUserinfo($userid, $coin, $attack);
-		$otherUserid_idplayer = $player->updateUserinfo($otherUserid, $otherCoin, $otherAttack);
 		$playerwin = $player->getPlayer($userWin);
 		if ($playerwin) {
 			$userid_win = $playerwin->id;
 		} else {
 			$userid_win = 0;
 		}
+		$userid_idplayer = $player->updateUserWinLose($userid, $coin, $attack, $userWin);
+		$otherUserid_idplayer = $player->updateUserWinLose($otherUserid, $otherCoin, $otherAttack, $userWin);
 
 		$towerinfo = new towerinfo();
 		$towerinfo->updateTowerinfo($otherUserid_idplayer, $other_player_tower_info);
@@ -337,6 +339,8 @@ class ApiController extends Controller
 		$content['per_attack_diff'] = empty($config_content_db->per_attack_diff) ? 15 : $config_content_db->per_attack_diff;
 		$content['time_off_from'] = empty($config_content_db->time_off_from) ? 15 : $config_content_db->time_off_from;
 		$content['time_off_to'] = empty($config_content_db->time_off_to) ? 14400 : $config_content_db->time_off_to;
+		$content['sum_win'] = empty($config_content_db->sum_win) ? 10 : $config_content_db->sum_win;
+		$content['sum_lose'] = empty($config_content_db->sum_lose) ? 10 : $config_content_db->sum_lose;
 		$content['updatedate'] = date("Y-m-d H:i:s");
 		$content = json_encode($content);
 		$file = fopen('config_file/config.json', "w");
