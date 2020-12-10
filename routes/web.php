@@ -24,9 +24,24 @@ Route::post('serviceupdateotherplayertower', 'ApiController@getServiceupdateothe
 Route::post('savelogs', 'ApiController@getSavelogs')->name('get-savelogs');
 Route::post('servicegcmid', 'ApiController@getServicegcmid')->name('get-servicegcmid');
 
-Route::post('test', 'ApiController@test')->name('get-test');
 Route::get('updateconfig', 'ApiController@updateConfig')->name('updateconfig');
+
+Route::post('test', 'ApiController@test')->name('get-test');
 /*END API*/
+
+/*API Gun2*/
+Route::group(['prefix' => 'gun2'], function () {
+	Route::post('servicelogin', 'ApiController_2@getServicelogin')->name('get-servicelogin_2');
+	Route::post('serviceupdatemyinfo', 'ApiController_2@getServiceupdatemyinfo')->name('get-serviceupdatemyinfo_2');
+	Route::post('servicegetmytowerinfo', 'ApiController_2@getServicegetmytowerinfo')->name('get-servicegetmytowerinfo_2');
+	Route::post('servicegetotherplayer', 'ApiController_2@getServicegetotherplayer')->name('get-servicegetotherplayer_2');
+	Route::post('serviceupdateotherplayertower', 'ApiController_2@getServiceupdateotherplayertower')->name('get-serviceupdateotherplayertower_2');
+	Route::post('savelogs', 'ApiController_2@getSavelogs')->name('get-savelogs_2');
+	Route::post('servicegcmid', 'ApiController_2@getServicegcmid')->name('get-servicegcmid_2');
+
+	Route::post('test', 'ApiController_2@test')->name('get-test_2');
+});
+/*END API Gun2*/
 
 Route::get('/login', 'HomeController@getLogin')->name('get-login');
 Route::post('/login-post', 'HomeController@postLogin')->name('post-login');
