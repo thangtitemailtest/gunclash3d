@@ -28,12 +28,14 @@ class matchlog_2 extends Model
 		$matchlog->level_herotower_lost = $level_herotower_lost;
 		$matchlog->level_defendtower1_lost = $level_defendtower1_lost;
 		$matchlog->level_defendtower2_lost = $level_defendtower2_lost;
+		$matchlog->checkgetdata = 0;
 		$matchlog->save();
 
 		return 1;
 	}
 
-	public function updateMatchlog($idmatchlog, $coin_lost = 0, $level_maintower_lost = 0, $level_warriortower_lost = 0, $level_herotower_lost = 0, $level_defendtower1_lost = 0, $level_defendtower2_lost = 0){
+	public function updateMatchlog($idmatchlog, $coin_lost = 0, $level_maintower_lost = 0, $level_warriortower_lost = 0, $level_herotower_lost = 0, $level_defendtower1_lost = 0, $level_defendtower2_lost = 0)
+	{
 		$matchlog = $this::find($idmatchlog);
 		$matchlog->coin_lost = $coin_lost;
 		$matchlog->level_maintower_lost = $level_maintower_lost;
@@ -42,6 +44,21 @@ class matchlog_2 extends Model
 		$matchlog->level_defendtower1_lost = $level_defendtower1_lost;
 		$matchlog->level_defendtower2_lost = $level_defendtower2_lost;
 		$matchlog->save();
+
+		return 1;
+	}
+
+	public function getListDataAttack($useriddefend)
+	{
+		$matchlog = $this::where('useriddefend', '=', $useriddefend)->where('checkgetdata', '=', 0)->get();
+
+		return $matchlog;
+	}
+
+	public function updateDataAttack($useriddefend)
+	{
+		$this::where('useriddefend', '=', $useriddefend)->where('checkgetdata', '=', 0)
+			->update(['checkgetdata' => 1, 'coin_lost' => 0, 'level_maintower_lost' => 0, 'level_warriortower_lost' => 0, 'level_herotower_lost' => 0, 'level_defendtower1_lost' => 0, 'level_defendtower2_lost' => 0]);
 
 		return 1;
 	}

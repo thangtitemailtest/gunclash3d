@@ -21,8 +21,16 @@ class ApiController extends Controller
 
 		$coin = $player_info['coin'];
 		$attack = $player_info['attack'];
-		$coinlost = 0;
 		$userid = $player_info['userid'];
+
+		$coinlost = 0;
+		$level_maintower_lost = 0;
+		$level_warriortower_lost = 0;
+		$level_herotower_lost = 0;
+		$level_defendtower1_lost = 0;
+		$level_defendtower2_lost = 0;
+
+		$arr_attack = [];
 
 		$playertower = new towerinfo();
 		$check_play_tower_info = $playertower->getTowerinfo($userid);
@@ -32,38 +40,42 @@ class ApiController extends Controller
 		} else {
 			$player_tower_info = $playertower->getTowerinfoArray($userid);
 			$matchlog = new matchlog();
-			$matchlog_info = $matchlog->getMatchlog($userid);
-			$player_tower_info[0]['levellost'] = isset($matchlog_info->level_maintower_lost) ? $matchlog_info->level_maintower_lost : 0;
-			$player_tower_info[1]['levellost'] = isset($matchlog_info->level_warriortower_lost) ? $matchlog_info->level_warriortower_lost : 0;
-			$player_tower_info[2]['levellost'] = isset($matchlog_info->level_herotower_lost) ? $matchlog_info->level_herotower_lost : 0;
-			$player_tower_info[3]['levellost'] = isset($matchlog_info->level_defendtower1_lost) ? $matchlog_info->level_defendtower1_lost : 0;
-			$player_tower_info[4]['levellost'] = isset($matchlog_info->level_defendtower2_lost) ? $matchlog_info->level_defendtower2_lost : 0;
-			$coinlost = isset($matchlog_info->coin_lost) ? $matchlog_info->coin_lost : 0;
+			$matchlog_listdataattack = $matchlog->getListDataAttack($userid);
+			if ($matchlog_listdataattack) {
+				foreach ($matchlog_listdataattack as $item_matchlog) {
+					$level_maintower_lost += $item_matchlog->level_maintower_lost;
+					$level_warriortower_lost += $item_matchlog->level_warriortower_lost;
+					$level_herotower_lost += $item_matchlog->level_herotower_lost;
+					$level_defendtower1_lost += $item_matchlog->level_defendtower1_lost;
+					$level_defendtower2_lost += $item_matchlog->level_defendtower2_lost;
+					$coinlost += $item_matchlog->coin_lost;
 
-			if (isset($matchlog_info->id)) {
-				$idmatchlog = $matchlog_info->id;
-				$matchlog->updateMatchlog($idmatchlog);
-			}
-
-			if (isset($matchlog_info->useridattack)) {
-				$userid_attack = $matchlog_info->useridattack;
-				$player_attack = $player->getPlayerId($userid_attack);
-				if ($player_attack) {
-					$attack_userid = $player_attack->deviceid;
-					$attack_username = $player_attack->name;
+					$useridattack = $item_matchlog->useridattack;
+					$useridattack_info = $player->getPlayerId($useridattack);
+					if ($useridattack_info) {
+						$useridattack_login = $player->getUseridLogin($useridattack_info);
+						$arr_attack[] = [
+							"deviceid" => $useridattack_info->deviceid,
+							"name" => $useridattack_info->name,
+							"userid" => $useridattack_login['userid'],
+							"type" => $useridattack_login['type'],
+						];
+					}
 				}
+
+				$matchlog->updateDataAttack($userid);
 			}
+			$player_tower_info[0]['levellost'] = $level_maintower_lost;
+			$player_tower_info[1]['levellost'] = $level_warriortower_lost;
+			$player_tower_info[2]['levellost'] = $level_herotower_lost;
+			$player_tower_info[3]['levellost'] = $level_defendtower1_lost;
+			$player_tower_info[4]['levellost'] = $level_defendtower2_lost;
 		}
 
-		// insert log login
-		/*$loggunclash = new loggunclash();
-		$deviceid = isset($param['deviceid']) ? $param['deviceid'] : "";
-		$country = isset($param['country']) ? $param['country'] : '';
-		$loggunclash->insertLogLogin($deviceid, $country);*/
-
 		$result['playerbuilding'] = $player_tower_info;
-		$result['attack_userid'] = empty($attack_userid) ? "" : $attack_userid;
-		$result['attack_username'] = empty($attack_username) ? "" : $attack_username;
+		$result['listattack'] = $arr_attack;
+		$result['attack_userid'] = "";
+		$result['attack_username'] = "";
 		$result['currentcoin'] = $this->checkEmptynumber($coin);
 		$result['coinlost'] = $this->checkEmptynumber($coinlost);
 		$result['attack'] = $this->checkEmptynumber($attack);
@@ -119,38 +131,56 @@ class ApiController extends Controller
 			$attack = $player_info->attack;
 			$userid_idplayer = $player_info->id;
 
+			$coinlost = 0;
+			$level_maintower_lost = 0;
+			$level_warriortower_lost = 0;
+			$level_herotower_lost = 0;
+			$level_defendtower1_lost = 0;
+			$level_defendtower2_lost = 0;
+
+			$arr_attack = [];
+
 			$playertower = new towerinfo();
 			$player_tower_info = $playertower->getTowerinfoArray($userid_idplayer);
 			$matchlog = new matchlog();
-			$matchlog_info = $matchlog->getMatchlog($userid_idplayer);
-			$player_tower_info[0]['levellost'] = isset($matchlog_info->level_maintower_lost) ? $matchlog_info->level_maintower_lost : 0;
-			$player_tower_info[1]['levellost'] = isset($matchlog_info->level_warriortower_lost) ? $matchlog_info->level_warriortower_lost : 0;
-			$player_tower_info[2]['levellost'] = isset($matchlog_info->level_herotower_lost) ? $matchlog_info->level_herotower_lost : 0;
-			$player_tower_info[3]['levellost'] = isset($matchlog_info->level_defendtower1_lost) ? $matchlog_info->level_defendtower1_lost : 0;
-			$player_tower_info[4]['levellost'] = isset($matchlog_info->level_defendtower2_lost) ? $matchlog_info->level_defendtower2_lost : 0;
-			$coinlost = isset($matchlog_info->coin_lost) ? $matchlog_info->coin_lost : 0;
+			$matchlog_listdataattack = $matchlog->getListDataAttack($userid_idplayer);
+			if ($matchlog_listdataattack) {
+				foreach ($matchlog_listdataattack as $item_matchlog) {
+					$level_maintower_lost += $item_matchlog->level_maintower_lost;
+					$level_warriortower_lost += $item_matchlog->level_warriortower_lost;
+					$level_herotower_lost += $item_matchlog->level_herotower_lost;
+					$level_defendtower1_lost += $item_matchlog->level_defendtower1_lost;
+					$level_defendtower2_lost += $item_matchlog->level_defendtower2_lost;
+					$coinlost += $item_matchlog->coin_lost;
+
+					$useridattack = $item_matchlog->useridattack;
+					$useridattack_info = $player->getPlayerId($useridattack);
+					if ($useridattack_info) {
+						$useridattack_login = $player->getUseridLogin($useridattack_info);
+						$arr_attack[] = [
+							"deviceid" => $useridattack_info->deviceid,
+							"name" => $useridattack_info->name,
+							"userid" => $useridattack_login['userid'],
+							"type" => $useridattack_login['type'],
+						];
+					}
+				}
+
+				$matchlog->updateDataAttack($userid_idplayer);
+			}
+			$player_tower_info[0]['levellost'] = $level_maintower_lost;
+			$player_tower_info[1]['levellost'] = $level_warriortower_lost;
+			$player_tower_info[2]['levellost'] = $level_herotower_lost;
+			$player_tower_info[3]['levellost'] = $level_defendtower1_lost;
+			$player_tower_info[4]['levellost'] = $level_defendtower2_lost;
 
 			$result['playerbuilding'] = $player_tower_info;
+			$result['listattack'] = $arr_attack;
 			$result['currentcoin'] = $this->checkEmptynumber($coin);
 			$result['coinlost'] = $this->checkEmptynumber($coinlost);
 			$result['attack'] = $this->checkEmptynumber($attack);
-
-			if (isset($matchlog_info->id)) {
-				$idmatchlog = $matchlog_info->id;
-				$matchlog->updateMatchlog($idmatchlog);
-			}
-
-			if (isset($matchlog_info->useridattack)) {
-				$userid_attack = $matchlog_info->useridattack;
-				$player_attack = $player->getPlayerId($userid_attack);
-				if ($player_attack) {
-					$attack_userid = $player_attack->deviceid;
-					$attack_username = $player_attack->name;
-				}
-			}
-
-			$result['attack_userid'] = empty($attack_userid) ? "" : $attack_userid;
-			$result['attack_username'] = empty($attack_username) ? "" : $attack_username;
+			$result['attack_userid'] = "";
+			$result['attack_username'] = "";
 		} else {
 			$message = "userid not found";
 			$status = 0;
