@@ -310,6 +310,26 @@ class ApiController extends Controller
 		$matchlog = new matchlog();
 		$matchlog->insertMatchlog($userid_idplayer, $otherUserid_idplayer, $userid_win, $otherCoinLost, $level_maintower_lost, $level_warriortower_lost, $level_herotower_lost, $level_defendtower1_lost, $level_defendtower2_lost);
 
+		$noti_obj = new Notification();
+		$userdanh = $player->getPlayer($userid);
+		$userbidanh = $player->getPlayer($otherUserid);
+		$userdanh_name = "";
+		$userbidanh_gcm = "";
+		$userbidanh_platform = "";
+		if ($userdanh) {
+			$userdanh_name = $userdanh->name;
+		}
+		if ($userbidanh) {
+			$userbidanh_gcm = $userbidanh->gcmid;
+			$userbidanh_platform = $userbidanh->platform;
+		}
+
+		if (!empty($userbidanh_gcm)) {
+			$title = "Hey! Commander!";
+			$body = "⚔ You have attacked by " . $userdanh_name . "! Open game to view!";
+			$noti_obj->sendNoti($userbidanh_platform, $userbidanh_gcm, $title, $body);
+		}
+
 		$result['status'] = $status;
 
 		$result = json_encode($result);
@@ -336,7 +356,7 @@ class ApiController extends Controller
 	{
 		$param = $request->all();
 		$userid = isset($param['userid']) ? $param['userid'] : '';
-		$gcmid = isset($param['gcmid']) ? $param['gcmid'] : '';
+		$gcmid = isset($param['gcm']) ? $param['gcm'] : '';
 
 		$status = 1;
 		$message = '';

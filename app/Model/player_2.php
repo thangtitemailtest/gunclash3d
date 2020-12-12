@@ -74,8 +74,8 @@ class player_2 extends Model
 			if (isset($input['country'])) {
 				$checkplay->country = $input['country'];
 			}
-			if (isset($input['gcmid'])) {
-				$checkplay->gcmid = $input['gcmid'];
+			if (isset($input['gcm'])) {
+				$checkplay->gcmid = $input['gcm'];
 			}
 			if (isset($input['username'])) {
 				$checkplay->name = $input['username'];
@@ -104,7 +104,7 @@ class player_2 extends Model
 			$player->gamecenterid = isset($input['gamecenterid']) ? $input['gamecenterid'] : '';
 			$player->platform = isset($input['platform']) ? $input['platform'] : '';
 			$player->country = isset($input['country']) ? $input['country'] : '';
-			$player->gcmid = isset($input['gcmid']) ? $input['gcmid'] : '';
+			$player->gcmid = isset($input['gcm']) ? $input['gcm'] : '';
 			$player->save();
 			$result['userid'] = $player->id;
 			$result['coin'] = 0;

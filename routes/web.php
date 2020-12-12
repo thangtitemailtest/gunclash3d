@@ -90,6 +90,6 @@ Route::get('/test2', 'ReportController@test2')->name('get-test2');
 Route::get('/test3', 'ReportController@test3')->name('get-test3');
 /*END Test*/
 
-Route::get('/sendnoti', 'Notification@sendNoti')->name('get-sendnoti');
+Route::get('/sendnoti', 'Notification@sendNotiTest')->name('get-sendnoti');
 
 //Auth::routes();
