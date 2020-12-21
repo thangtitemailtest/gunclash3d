@@ -13,7 +13,7 @@
             <div class="card-body">
                 <form action="{{ route('get-userconlaisaulevel') }}" method="GET" class="mb-5" id="filter-frm">
                     <div class="row">
-                        <div class="col-sm-3" style="height:85px">
+                        <div class="col-sm-4" style="height:85px">
                             <div class="form-group input-group-sm">
                                 <label class="radio-inline mr-3">
                                     <input type="radio" name="time" id="time-1" onchange="changeRadio('week')"
@@ -24,7 +24,7 @@
                                        value="{{!empty($input['week']) ? $input['week'] : ''}}">
                             </div>
                         </div>
-                        <div class="col-sm-3" style="height:85px">
+                        <div class="col-sm-4" style="height:85px">
                             <div class="form-group input-group-sm">
                                 <label class="radio-inline mr-3">
                                     <input type="radio" name="time" id="time-2" onchange="changeRadio('month')"
@@ -35,7 +35,7 @@
                                        value="{{!empty($input['month']) ? $input['month'] : ''}}">
                             </div>
                         </div>
-                        <div class="col-sm-3" style="height:85px;">
+                        <div class="col-sm-4" style="height:85px;">
                             <div class="form-group input-group-sm">
                                 <label class="radio-inline mr-3">
                                     <input type="radio" name="time" id="time-3" onchange="changeRadio('tuychon')"
@@ -56,11 +56,11 @@
                 </form>
 
                 <div class="row" id="divbang">
-                    <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div class="col-xs-12 col-sm-12 col-md-12" style="overflow-x: auto;">
                         <div id="barchart1"></div>
                     </div>
                     <div class="col-xs-12 col-sm-12 col-md-12"
-                         style="text-align: center;{{$datachart == "[]" ? 'display:none' : ''}}">
+                         style="overflow-x: auto;text-align: center;{{$datachart == "[]" ? 'display:none' : ''}}">
                         <p>Level</p>
                     </div>
 
@@ -68,7 +68,7 @@
                         <div id="barchart2"></div>
                     </div>
                     <div class="col-xs-12 col-sm-12 col-md-12"
-                         style="text-align: center;{{$datachart == "[]" ? 'display:none' : ''}}">
+                         style="overflow-x: auto;text-align: center;{{$datachart == "[]" ? 'display:none' : ''}}">
                         <p>Level</p>
                     </div>
 
@@ -76,7 +76,7 @@
                         <div id="barchart3"></div>
                     </div>
                     <div class="col-xs-12 col-sm-12 col-md-12"
-                         style="text-align: center;{{$datachart == "[]" ? 'display:none' : ''}}">
+                         style="overflow-x: auto;text-align: center;{{$datachart == "[]" ? 'display:none' : ''}}">
                         <p>Level</p>
                     </div>
 
@@ -84,7 +84,7 @@
                         <div id="barchart4"></div>
                     </div>
                     <div class="col-xs-12 col-sm-12 col-md-12"
-                         style="text-align: center;{{$datachart == "[]" ? 'display:none' : ''}}">
+                         style="overflow-x: auto;text-align: center;{{$datachart == "[]" ? 'display:none' : ''}}">
                         <p>Level</p>
                     </div>
                 </div>

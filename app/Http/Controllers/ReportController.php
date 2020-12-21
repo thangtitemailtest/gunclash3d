@@ -10,8 +10,10 @@ use Illuminate\Support\Facades\Cache;
 class ReportController extends Controller
 {
 
-	function getUserconlaisaulevel(Request $request)
+	public function getUserconlaisaulevel(Request $request)
 	{
+		set_time_limit(3600);
+
 		$params = $request->all();
 		$datachart = [];
 		if (empty($params['time'])) {

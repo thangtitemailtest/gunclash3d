@@ -92,4 +92,6 @@ Route::get('/test3', 'ReportController@test3')->name('get-test3');
 
 Route::get('/sendnoti', 'Notification@sendNotiTest')->name('get-sendnoti');
 
+//Route::get('/taoadmin', 'HomeController@taoadmin');
+
 //Auth::routes();

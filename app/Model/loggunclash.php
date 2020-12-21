@@ -98,6 +98,8 @@ class loggunclash extends Model
 
 	public function SoUserConLaiSauCacLevel($input)
 	{
+		set_time_limit(3600);
+
 		$log = $this::select('level', 'deviceid')->where('eventname', '=', 'play_level')->where('level', '<', 101);
 		$log = $this->checkDate($log, $input);
 
@@ -201,15 +203,13 @@ class loggunclash extends Model
 						$tuan = $week[1];
 						$dto = new DateTime();
 						$dto->setISODate($nam, $tuan);
-						$date['week_start'] = $dto->format('Y-m-d');
-						$dto->modify('+7 days');
-						$date['week_end'] = $dto->format('Y-m-d') . " 00:00:00";
-
-						$date['week_start'] = date('Y-m-d', strtotime($date['week_start'] . " -1 day")) . " 23:59:59";
+						$date['week_start'] = $dto->format('Y-m-d') . " 00:00:00";
+						$dto->modify('+6 days');
+						$date['week_end'] = $dto->format('Y-m-d') . " 23:59:59";
 
 
-						$log->where($join . 'createdate', '>', $date['week_start']);
-						$log->where($join . 'createdate', '<', $date['week_end']);
+						$log->where($join . 'createdate', '>=', $date['week_start']);
+						$log->where($join . 'createdate', '<=', $date['week_end']);
 					}
 
 					break;

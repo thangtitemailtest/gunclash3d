@@ -30,11 +30,11 @@ class Notification extends Controller
 		$result = curl_exec($ch);
 		curl_close($ch);
 
-		echo $result;
+		return $result;
 	}
 
 	//$userbidanh_gcm = "eT3sljdx3kRnvjRezMoLLx:APA91bHApygiZ0MbuihFhg2taxAALDKEMOqFQhIt1_TqgbBLWuJ_jxTpEazc9MuLEbBoErsr-pnuYXLOnAMYU_V9LRWq4YvjKaqr24OAUyE3YYGBzgeqDyLf0eEMyvqf7AsWA2Bt8mx3";
-		//$userbidanh_gcm = "cNvdQrMiSnOnDUg6F5DJe-:APA91bFOV7sstv0HeDUdPku_L8P4S1FUoz-2AgaA6oHxYGEbPxSwcAKAnVz1Rkg_BGvbekhszBP4DtI5JHtdPBXHcs-r8gTp2r6MGk0BO5A5e8OwGT-H4nxQei402pP_d-rDbtynHr_K";
+	//$userbidanh_gcm = "cNvdQrMiSnOnDUg6F5DJe-:APA91bFOV7sstv0HeDUdPku_L8P4S1FUoz-2AgaA6oHxYGEbPxSwcAKAnVz1Rkg_BGvbekhszBP4DtI5JHtdPBXHcs-r8gTp2r6MGk0BO5A5e8OwGT-H4nxQei402pP_d-rDbtynHr_K";
 
 	public function sendNoti($platform, $to, $title, $body)
 	{
