@@ -106,7 +106,7 @@
             <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePages13"
                aria-expanded="true" aria-controls="collapsePages">
                 <i class="fab fa-first-order"></i>
-                <span>Reports</span>
+                <span>Reports Gun1</span>
             </a>
             <div id="collapsePages13" class="collapse" aria-labelledby="headingPages" data-parent="">
                 <div class="bg-white py-2 collapse-inner rounded">
@@ -165,6 +165,74 @@
 
                     @if(in_array('report/logevent',$permission) || $permission[0] == 'admin')
                         <a class="collapse-item" href="{{route('get-logevent')}}">Log event</a>
+                    @endif
+                </div>
+            </div>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#gun2"
+               aria-expanded="true" aria-controls="collapsePages">
+                <i class="fab fa-first-order"></i>
+                <span>Reports Gun2</span>
+            </a>
+            <div id="gun2" class="collapse" aria-labelledby="headingPages" data-parent="">
+                <div class="bg-white py-2 collapse-inner rounded">
+
+                    {{--<a class="collapse-item" href="{{url('report')}}">Reports</a>--}}
+                    @if(in_array('report/userconlaisaulevel',$permission) || $permission[0] == 'admin')
+                        <a class="collapse-item" href="{{route('get-gun2userconlaisaulevel')}}">Lượng user còn lại sau<br>các
+                            level</a>
+                    @endif
+
+                    @if(in_array('report/sotiencuausertheolevel',$permission) || $permission[0] == 'admin')
+                        <a class="collapse-item" href="{{route('get-gun2sotiencuausertheolevel')}}">Số tiền của user
+                            theo<br>các
+                            level</a>
+                    @endif
+
+                    @if(in_array('report/levelusermuainapp',$permission) || $permission[0] == 'admin')
+                        <a class="collapse-item" href="{{route('get-gun2levelusermuainapp')}}">Level user mua inapp<br>nhiều
+                            nhất</a>
+                    @endif
+
+                    @if(in_array('report/locsonguoichoipass',$permission) || $permission[0] == 'admin')
+                        <a class="collapse-item" href="{{route('get-gun2locsonguoichoipass')}}">Lọc số người chơi win
+                            level</a>
+                    @endif
+
+                    @if(in_array('report/locsonguoichoilose',$permission) || $permission[0] == 'admin')
+                        <a class="collapse-item" href="{{route('get-gun2locsonguoichoilose')}}">Lọc số người chơi lose
+                            level</a>
+                    @endif
+
+                    @if(in_array('report/locsonguoichoistart',$permission) || $permission[0] == 'admin')
+                        <a class="collapse-item" href="{{route('get-gun2locsonguoichoistart')}}">Lọc số người chơi play
+                            level</a>
+                    @endif
+
+                    @if(in_array('report/locsotiennguoichoipass',$permission) || $permission[0] == 'admin')
+                        <a class="collapse-item" href="{{route('get-gun2locsotiennguoichoipass')}}">Lọc số tiền trung
+                            bình<br>của
+                            user chơi win level</a>
+                    @endif
+
+                    @if(in_array('report/locsotiennguoichoilose',$permission) || $permission[0] == 'admin')
+                        <a class="collapse-item" href="{{route('get-gun2locsotiennguoichoilose')}}">Lọc số tiền trung
+                            bình<br>của
+                            user chơi lose level</a>
+                    @endif
+                    {{--<a class="collapse-item" href="{{route('get-gun2locsonguoiupgradebulletlevel')}}">Lọc số người upgrade bullet<br>level</a>--}}
+                    {{--<a class="collapse-item" href="{{route('get-gun2locsonguoiupgradebulletpower')}}">Lọc số người upgrade bullet<br>power</a>--}}
+
+                    @if(in_array('report/quocgiacosologinnhieunhat',$permission) || $permission[0] == 'admin')
+                        <a class="collapse-item" href="{{route('get-gun2quocgiacosologinnhieunhat')}}">5 quốc gia có số
+                            login<br>nhiều nhất</a>
+                    @endif
+                    {{--<a class="collapse-item" href="{{route('get-gun2locsonguoichoigamelandau')}}">Lọc số người chơi game lần<br>đầu/tổng số người chơi game</a>--}}
+
+                    @if(in_array('report/logevent',$permission) || $permission[0] == 'admin')
+                        <a class="collapse-item" href="{{route('get-gun2logevent')}}">Log event</a>
                     @endif
                 </div>
             </div>

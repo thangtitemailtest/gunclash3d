@@ -80,6 +80,23 @@ Route::middleware('Checklogin')->group(function () {
 		Route::get('/quocgiacosologinnhieunhat', 'ReportController@getQuocgiacosologinnhieunhat')->name('get-quocgiacosologinnhieunhat');
 		//Route::get('/locsonguoichoigamelandau', 'ReportController@getLocsonguoichoigamelandau')->name('get-locsonguoichoigamelandau');
 		Route::get('/logevent', 'ReportController@getLogevent')->name('get-logevent');
+
+		Route::group(['prefix' => 'gun2'], function () {
+			//Route::get('/', 'chartController@index')->name('get.report');
+			Route::get('/userconlaisaulevel', 'ReportControllerGun2@getUserconlaisaulevel')->name('get-gun2userconlaisaulevel');
+			Route::get('/sotiencuausertheolevel', 'ReportControllerGun2@getSotiencuausertheolevel')->name('get-gun2sotiencuausertheolevel');
+			Route::get('/levelusermuainapp', 'ReportControllerGun2@getLevelusermuainapp')->name('get-gun2levelusermuainapp');
+			Route::get('/locsonguoichoistart', 'ReportControllerGun2@getLocsonguoichoistart')->name('get-gun2locsonguoichoistart');
+			Route::get('/locsonguoichoipass', 'ReportControllerGun2@getLocsonguoichoipass')->name('get-gun2locsonguoichoipass');
+			Route::get('/locsonguoichoilose', 'ReportControllerGun2@getLocsonguoichoilose')->name('get-gun2locsonguoichoilose');
+			Route::get('/locsotiennguoichoipass', 'ReportControllerGun2@getLocsotiennguoichoipass')->name('get-gun2locsotiennguoichoipass');
+			Route::get('/locsotiennguoichoilose', 'ReportControllerGun2@getLocsotiennguoichoilose')->name('get-gun2locsotiennguoichoilose');
+			//Route::get('/locsonguoiupgradebulletlevel', 'ReportControllerGun2@getLocsonguoiupgradebulletlevel')->name('get-gun2locsonguoiupgradebulletlevel');
+			//Route::get('/locsonguoiupgradebulletpower', 'ReportControllerGun2@getLocsonguoiupgradebulletpower')->name('get-gun2locsonguoiupgradebulletpower');
+			Route::get('/quocgiacosologinnhieunhat', 'ReportControllerGun2@getQuocgiacosologinnhieunhat')->name('get-gun2quocgiacosologinnhieunhat');
+			//Route::get('/locsonguoichoigamelandau', 'ReportControllerGun2@getLocsonguoichoigamelandau')->name('get-gun2locsonguoichoigamelandau');
+			Route::get('/logevent', 'ReportControllerGun2@getLogevent')->name('get-gun2logevent');
+		});
 	});
 	/*END Report*/
 });

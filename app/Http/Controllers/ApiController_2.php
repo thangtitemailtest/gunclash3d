@@ -97,13 +97,16 @@ class ApiController_2 extends Controller
 		$player_tower_info_building = $player_tower_info['playerbuilding'];
 		$coin = isset($player_tower_info['currentcoin']) ? $player_tower_info['currentcoin'] : 0;
 		$attack = isset($player_tower_info['attack']) ? $player_tower_info['attack'] : 0;
+		$world = isset($param['world']) ? $param['world'] : 1;
+		$attackwarrior = isset($param['attackwarrior']) ? $param['attackwarrior'] : 0;
+		$defendwarrior = isset($param['defendwarrior']) ? $param['defendwarrior'] : 0;
 
 		$player = new player_2();
 		$userInfo_id = $player->updateUserinfo($userid, $coin, $attack);
 
 		if ($userInfo_id) {
 			$towerinfo = new towerinfo_2();
-			$towerinfo->updateTowerinfo($userInfo_id, $player_tower_info_building);
+			$towerinfo->updateTowerinfo2($userInfo_id, $player_tower_info_building, $world, $attackwarrior, $defendwarrior);
 		} else {
 			$message = "Userid not found";
 			$status = 0;
@@ -208,28 +211,41 @@ class ApiController_2 extends Controller
 			$sum_lose = empty($player_info->sum_lose) ? 0 : $player_info->sum_lose;
 
 			$towerinfo = new towerinfo_2();
-			$result['playerbuilding'] = [];
+			$result['players'] = [];
 			$otherPlayer = $player->getOtherPlayerRandom($userid_idplayer, $attack, $sum_win, $sum_lose);
 			if ($otherPlayer) {
 				// random
-				$otherPlayer = $otherPlayer[array_rand($otherPlayer)];
+				$key_random = array_rand($otherPlayer, 6);
 				// end cmt random
-				$userid_other = $otherPlayer['id'];
-				$userid_other_deviceid = $otherPlayer['deviceid'];
-				$userid_other_username = $otherPlayer['name'];
-				$attack_other = $otherPlayer['attack'];
-				$coin_other = $otherPlayer['coin'];
-				$otherTowerinfo = $towerinfo->getTowerinfoArray($userid_other);
+				foreach ($key_random as $item_key_random) {
+					$otherPlayer_random = $otherPlayer[$item_key_random];
 
-				$result['playerbuilding'] = $otherTowerinfo;
-				$result['attack'] = $attack_other;
-				$result['currentcoin'] = $coin_other;
-				$result['otherusername'] = $userid_other_username;
-				$result['otheruserdeviceid'] = $userid_other_deviceid;
+					$arr = [];
 
-				$useridLogin = $player->getUseridLogin($otherPlayer, 'arr');
-				$result['otheruserid'] = $useridLogin['userid'];
-				$result['type'] = $useridLogin['type'];
+					$userid_other = $otherPlayer_random['id'];
+					$userid_other_deviceid = $otherPlayer_random['deviceid'];
+					$userid_other_username = $otherPlayer_random['name'];
+					$attack_other = $otherPlayer_random['attack'];
+					$coin_other = $otherPlayer_random['coin'];
+					$otherTowerinfo = $towerinfo->getTowerinfoArray2($userid_other);
+					$otherPlayerbuilding = $otherTowerinfo['player_tower_info'];
+					$world = $otherTowerinfo['world'];
+					$defendwarrior = $otherTowerinfo['defendwarrior'];
+
+					$arr['playerbuilding'] = $otherPlayerbuilding;
+					$arr['world'] = $world;
+					$arr['defendwarrior'] = $defendwarrior;
+					$arr['attack'] = $attack_other;
+					$arr['currentcoin'] = $coin_other;
+					$arr['otherusername'] = $userid_other_username;
+					$arr['otheruserdeviceid'] = $userid_other_deviceid;
+
+					$useridLogin = $player->getUseridLogin($otherPlayer_random, 'arr');
+					$arr['otheruserid'] = $useridLogin['userid'];
+					$arr['type'] = $useridLogin['type'];
+
+					$result['players'][] = $arr;
+				}
 			}
 		} else {
 			$message = "userid not found";
