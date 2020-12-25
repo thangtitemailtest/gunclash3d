@@ -215,7 +215,7 @@ class ApiController extends Controller
 			$otherPlayer = $player->getOtherPlayerRandom($userid_idplayer, $attack, $sum_win, $sum_lose);
 			if ($otherPlayer) {
 				// random
-				$key_random = array_rand($otherPlayer, 6);
+				$key_random = array_rand($otherPlayer, 9);
 				// end cmt random
 				foreach ($key_random as $item_key_random) {
 					$otherPlayer_random = $otherPlayer[$item_key_random];
