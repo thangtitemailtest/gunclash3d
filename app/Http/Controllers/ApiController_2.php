@@ -141,7 +141,7 @@ class ApiController_2 extends Controller
 			$level_defendtower1_lost = 0;
 			$level_defendtower2_lost = 0;
 
-			$arr_attack = [];
+			//$arr_attack = [];
 
 			$playertower = new towerinfo_2();
 			$player_tower_info = $playertower->getTowerinfoArray($userid_idplayer);
@@ -156,7 +156,7 @@ class ApiController_2 extends Controller
 					$level_defendtower2_lost += $item_matchlog->level_defendtower2_lost;
 					$coinlost += $item_matchlog->coin_lost;
 
-					$useridattack = $item_matchlog->useridattack;
+					/*$useridattack = $item_matchlog->useridattack;
 					$useridattack_info = $player->getPlayerId($useridattack);
 					if ($useridattack_info) {
 						$useridattack_login = $player->getUseridLogin($useridattack_info);
@@ -166,7 +166,7 @@ class ApiController_2 extends Controller
 							"userid" => $useridattack_login['userid'],
 							"type" => $useridattack_login['type'],
 						];
-					}
+					}*/
 				}
 
 				$matchlog->updateDataAttack($userid_idplayer);
@@ -178,7 +178,7 @@ class ApiController_2 extends Controller
 			$player_tower_info[4]['levellost'] = $level_defendtower2_lost;
 
 			$result['playerbuilding'] = $player_tower_info;
-			$result['listattack'] = $arr_attack;
+			//$result['listattack'] = $arr_attack;
 			$result['currentcoin'] = $this->checkEmptynumber($coin);
 			$result['coinlost'] = $this->checkEmptynumber($coinlost);
 			$result['attack'] = $this->checkEmptynumber($attack);
@@ -196,6 +196,56 @@ class ApiController_2 extends Controller
 	}
 
 	function getServicegetotherplayer(Request $request)
+	{
+		$param = $request->all();
+		$userid = isset($param['userid']) ? $param['userid'] : '';
+
+		$status = 1;
+		$message = '';
+		$player = new player_2();
+		$player_info = $player->getPlayer($userid);
+		if ($player_info) {
+			$attack = empty($player_info->attack) ? 0 : $player_info->attack;
+			$userid_idplayer = $player_info->id;
+			$sum_win = empty($player_info->sum_win) ? 0 : $player_info->sum_win;
+			$sum_lose = empty($player_info->sum_lose) ? 0 : $player_info->sum_lose;
+
+			$towerinfo = new towerinfo_2();
+			$result['playerbuilding'] = [];
+			$otherPlayer = $player->getOtherPlayerRandom($userid_idplayer, $attack, $sum_win, $sum_lose);
+			if ($otherPlayer) {
+				// random
+				$otherPlayer = $otherPlayer[array_rand($otherPlayer)];
+				// end cmt random
+				$userid_other = $otherPlayer['id'];
+				$userid_other_deviceid = $otherPlayer['deviceid'];
+				$userid_other_username = $otherPlayer['name'];
+				$attack_other = $otherPlayer['attack'];
+				$coin_other = $otherPlayer['coin'];
+				$otherTowerinfo = $towerinfo->getTowerinfoArray($userid_other);
+
+				$result['playerbuilding'] = $otherTowerinfo;
+				$result['attack'] = $attack_other;
+				$result['currentcoin'] = $coin_other;
+				$result['otherusername'] = $userid_other_username;
+				$result['otheruserdeviceid'] = $userid_other_deviceid;
+
+				$useridLogin = $player->getUseridLogin($otherPlayer, 'arr');
+				$result['otheruserid'] = $useridLogin['userid'];
+				$result['type'] = $useridLogin['type'];
+			}
+		} else {
+			$message = "userid not found";
+			$status = 0;
+		}
+		$result['status'] = $status;
+		$result['message'] = $message;
+
+		$result = json_encode($result);
+		return $result;
+	}
+
+	function getServicegetotherplayernew(Request $request)
 	{
 		$param = $request->all();
 		$userid = isset($param['userid']) ? $param['userid'] : '';
