@@ -442,6 +442,57 @@ class ApiController extends Controller
 		return $result;
 	}
 
+	function getLichSuBiDanh(Request $request)
+	{
+		$param = $request->all();
+		$userid = isset($param['userid']) ? $param['userid'] : '';
+
+		$status = 1;
+		$message = '';
+		$player_obj = new player();
+		$player = $player_obj->getPlayer($userid);
+		if ($player) {
+			$id = $player->id;
+			$listLichSuDanh_arr = [];
+			$matchlog_obj = new matchlog();
+			$listLichSuDanh = $matchlog_obj->getListLichSuDanh($id);
+			if ($listLichSuDanh) {
+				foreach ($listLichSuDanh as $item) {
+					$arr = [];
+					$id_attack = $item->useridattack;
+					$user_attack = $player_obj->getPlayerId($id_attack);
+					$time = $item->createdate;
+					if ($user_attack) {
+						$name = $user_attack->name;
+						$deviceid = $user_attack->deviceid;
+						$useridLogin = $player->getUseridLogin($user_attack, 'obj');
+						$otheruserid = $useridLogin['userid'];
+						$type = $useridLogin['type'];
+
+						$arr['time'] = $time;
+						$arr['name'] = $name;
+						$arr['deviceid'] = $deviceid;
+						$arr['userid'] = $otheruserid;
+						$arr['type'] = $type;
+
+						$listLichSuDanh_arr[] = $arr;
+					}
+				}
+			}
+
+			$result['listattack'] = $listLichSuDanh_arr;
+		} else {
+			$status = 0;
+			$message = 'Userid not found';
+		}
+
+		$result['status'] = $status;
+		$result['message'] = $message;
+
+		$result = json_encode($result);
+		return $result;
+	}
+
 	function checkEmptynumber($number)
 	{
 		return empty($number) ? 0 : $number;

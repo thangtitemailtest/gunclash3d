@@ -24,6 +24,7 @@ Route::post('servicegetotherplayernew', 'ApiController@getServicegetotherplayern
 Route::post('serviceupdateotherplayertower', 'ApiController@getServiceupdateotherplayertower')->name('get-serviceupdateotherplayertower');
 Route::post('savelogs', 'ApiController@getSavelogs')->name('get-savelogs');
 Route::post('servicegcmid', 'ApiController@getServicegcmid')->name('get-servicegcmid');
+Route::post('getlistattack', 'ApiController@getLichSuBiDanh')->name('get-lichsubidanh');
 
 Route::get('updateconfig', 'ApiController@updateConfig')->name('updateconfig');
 
@@ -40,6 +41,7 @@ Route::group(['prefix' => 'gun2'], function () {
 	Route::post('serviceupdateotherplayertower', 'ApiController_2@getServiceupdateotherplayertower')->name('get-serviceupdateotherplayertower_2');
 	Route::post('savelogs', 'ApiController_2@getSavelogs')->name('get-savelogs_2');
 	Route::post('servicegcmid', 'ApiController_2@getServicegcmid')->name('get-servicegcmid_2');
+	Route::post('getlistattack', 'ApiController_2@getLichSuBiDanh')->name('get-lichsubidanh_2');
 
 	Route::post('test', 'ApiController_2@test')->name('get-test_2');
 });

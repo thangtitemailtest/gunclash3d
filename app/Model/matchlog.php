@@ -62,4 +62,11 @@ class matchlog extends Model
 
 		return 1;
 	}
+
+	public function getListLichSuDanh($useriddefend)
+	{
+		$list = $this::where('useriddefend', '=', $useriddefend)->orderBy('id', 'DESC')->limit(10)->get();
+
+		return $list;
+	}
 }
