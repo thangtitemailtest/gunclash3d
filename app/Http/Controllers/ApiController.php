@@ -455,7 +455,8 @@ class ApiController extends Controller
 			$id = $player->id;
 			$listLichSuDanh_arr = [];
 			$matchlog_obj = new matchlog();
-			$listLichSuDanh = $matchlog_obj->getListLichSuDanh($id);
+			$listLichSuDanh = $matchlog_obj->getListLichSuBiDanh($id);
+			$towerinfo = new towerinfo();
 			if ($listLichSuDanh) {
 				foreach ($listLichSuDanh as $item) {
 					$arr = [];
@@ -465,15 +466,89 @@ class ApiController extends Controller
 					if ($user_attack) {
 						$name = $user_attack->name;
 						$deviceid = $user_attack->deviceid;
+						$attack = $user_attack->attack;
+						$coin = $user_attack->coin;
 						$useridLogin = $player->getUseridLogin($user_attack, 'obj');
 						$otheruserid = $useridLogin['userid'];
 						$type = $useridLogin['type'];
+						$otherTowerinfo = $towerinfo->getTowerinfoArray2($id_attack);
+						$otherPlayerbuilding = $otherTowerinfo['player_tower_info'];
+						$world = $otherTowerinfo['world'];
+						$defendwarrior = $otherTowerinfo['defendwarrior'];
 
 						$arr['time'] = $time;
 						$arr['name'] = $name;
 						$arr['deviceid'] = $deviceid;
 						$arr['userid'] = $otheruserid;
 						$arr['type'] = $type;
+						$arr['attack'] = $attack;
+						$arr['coin'] = $coin;
+						$arr['world'] = $world;
+						$arr['defendwarrior'] = $defendwarrior;
+						$arr['playerbuilding'] = $otherPlayerbuilding;
+
+						$listLichSuDanh_arr[] = $arr;
+					}
+				}
+			}
+
+			$result['listattack'] = $listLichSuDanh_arr;
+		} else {
+			$status = 0;
+			$message = 'Userid not found';
+		}
+
+		$result['status'] = $status;
+		$result['message'] = $message;
+
+		$result = json_encode($result);
+		return $result;
+	}
+
+	function getLichSuDanh(Request $request)
+	{
+		$param = $request->all();
+		$userid = isset($param['userid']) ? $param['userid'] : '';
+
+		$status = 1;
+		$message = '';
+		$player_obj = new player();
+		$player = $player_obj->getPlayer($userid);
+		if ($player) {
+			$id = $player->id;
+			$listLichSuDanh_arr = [];
+			$matchlog_obj = new matchlog();
+			$listLichSuDanh = $matchlog_obj->getListLichSuDanh($id);
+			$towerinfo = new towerinfo();
+			if ($listLichSuDanh) {
+				foreach ($listLichSuDanh as $item) {
+					$arr = [];
+					$id_attack = $item->useriddefend;
+					$user_attack = $player_obj->getPlayerId($id_attack);
+					$time = $item->createdate;
+					if ($user_attack) {
+						$name = $user_attack->name;
+						$deviceid = $user_attack->deviceid;
+						$attack = $user_attack->attack;
+						$coin = $user_attack->coin;
+						$useridLogin = $player->getUseridLogin($user_attack, 'obj');
+						$otheruserid = $useridLogin['userid'];
+						$type = $useridLogin['type'];
+						$otherTowerinfo = $towerinfo->getTowerinfoArray2($id_attack);
+						$otherPlayerbuilding = $otherTowerinfo['player_tower_info'];
+						$world = $otherTowerinfo['world'];
+						$defendwarrior = $otherTowerinfo['defendwarrior'];
+
+						$arr['time'] = $time;
+						$arr['name'] = $name;
+						$arr['deviceid'] = $deviceid;
+						$arr['userid'] = $otheruserid;
+						$arr['type'] = $type;
+						$arr['attack'] = $attack;
+						$arr['coin'] = $coin;
+						$arr['world'] = $world;
+						$arr['defendwarrior'] = $defendwarrior;
+						$arr['playerbuilding'] = $otherPlayerbuilding;
 
 						$listLichSuDanh_arr[] = $arr;
 					}
