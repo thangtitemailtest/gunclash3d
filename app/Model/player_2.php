@@ -2,6 +2,7 @@
 
 namespace App\Model;
 
+use App\Http\Controllers\ApiController_2;
 use Illuminate\Database\Eloquent\Model;
 
 class player_2 extends Model
@@ -64,6 +65,21 @@ class player_2 extends Model
 		return $player;
 	}
 
+	public function randomNamePlayer($id)
+	{
+		$player = $this->getPlayerId($id);
+		$username = '';
+		if ($player) {
+			$apicontroller = new ApiController_2();
+			$danhsachten = $apicontroller->DanhSachTen();
+			$username = $danhsachten[array_rand($danhsachten)];
+			$player->name = $username;
+			$player->save();
+		}
+
+		return $username;
+	}
+
 	public function insertUser($input)
 	{
 		$deviceid = isset($input['deviceid']) ? $input['deviceid'] : '';
@@ -77,8 +93,16 @@ class player_2 extends Model
 			if (isset($input['gcm'])) {
 				$checkplay->gcmid = $input['gcm'];
 			}
-			if (isset($input['username'])) {
-				$checkplay->name = $input['username'];
+			$username = isset($input['username']) ? $input['username'] : '';
+			if (empty($username)) {
+				if (empty($checkplay->name)) {
+					$apicontroller = new ApiController_2();
+					$danhsachten = $apicontroller->DanhSachTen();
+					$username = $danhsachten[array_rand($danhsachten)];
+					$checkplay->name = $username;
+				}
+			} else {
+				$checkplay->name = $username;
 			}
 			if (isset($input['fbid'])) {
 				$checkplay->fbid = $input['fbid'];
@@ -96,7 +120,13 @@ class player_2 extends Model
 			$result['attack'] = $checkplay->attack;
 		} else {
 			$player = new player_2();
-			$player->name = isset($input['username']) ? $input['username'] : '';
+			$username = isset($input['username']) ? $input['username'] : '';
+			if (empty($username)) {
+				$apicontroller = new ApiController_2();
+				$danhsachten = $apicontroller->DanhSachTen();
+				$username = $danhsachten[array_rand($danhsachten)];
+			}
+			$player->name = $username;
 			$player->attack = isset($input['attack']) ? $input['attack'] : 0;
 			$player->deviceid = isset($input['deviceid']) ? $input['deviceid'] : '';
 			$player->fbid = isset($input['fbid']) ? $input['fbid'] : '';
@@ -140,12 +170,22 @@ class player_2 extends Model
 		}
 	}
 
-	public function updateUserinfo($userid, $coin, $attack = null)
+	public function updateUserinfo($userid, $coin, $attack = null, $username = '')
 	{
 		$userInfo = $this->getPlayer($userid);
 		if ($userInfo) {
 			$userInfo->coin = $coin;
 			$userInfo->attack = $attack;
+			if (empty($username)) {
+				if (empty($userInfo->name)) {
+					$apicontroller = new ApiController_2();
+					$danhsachten = $apicontroller->DanhSachTen();
+					$username = $danhsachten[array_rand($danhsachten)];
+					$userInfo->name = $username;
+				}
+			} else {
+				$userInfo->name = $username;
+			}
 			$userInfo->save();
 
 			return $userInfo->id;
@@ -181,99 +221,347 @@ class player_2 extends Model
 	{
 		$path_config = asset('/config_file/config.json');
 		$config_content = json_decode(file_get_contents($path_config), true);
-		$per_attack_diff = empty($config_content['per_attack_diff']) ? 15 : $config_content['per_attack_diff'];
-		$time_off_from = empty($config_content['time_off_from']) ? 15 : $config_content['time_off_from'];
-		$time_off_to = empty($config_content['time_off_to']) ? 14400 : $config_content['time_off_to'];
-		$sum_win_conf = empty($config_content['sum_win']) ? 10 : $config_content['sum_win'];
-		$sum_lose_conf = empty($config_content['sum_lose']) ? 10 : $config_content['sum_lose'];
+		$per_attack_diff = empty($config_content['per_attack_diff']) ? 10 : $config_content['per_attack_diff'];
+		$time_off_from = empty($config_content['time_off_from']) ? 5 : $config_content['time_off_from'];
+		$time_off_to = empty($config_content['time_off_to']) ? 4320 : $config_content['time_off_to'];
+		$sum_win_conf = empty($config_content['sum_win']) ? 5 : $config_content['sum_win'];
+		$sum_lose_conf = empty($config_content['sum_lose']) ? 5 : $config_content['sum_lose'];
 
 		$attack_min = $attack - ($attack * $per_attack_diff / 100) - 1;
-		$attack_min = $attack_min < 0 ? 0 : $attack_min;
+		$attack_min = $attack_min < 0 ? 1 : $attack_min;
 		$attack_max = $attack + ($attack * $per_attack_diff / 100) + 1;
+
+		$per_attack_diff_2 = $per_attack_diff + 10;
+		$attack_min2 = $attack - ($attack * $per_attack_diff_2 / 100) - 1;
+		$attack_min2 = $attack_min2 < 0 ? 1 : $attack_min2;
+		$attack_max2 = $attack + ($attack * $per_attack_diff_2 / 100) + 1;
+
+		$per_attack_diff_3 = $per_attack_diff + 50;
+		$attack_min3 = $attack - ($attack * $per_attack_diff_3 / 100) - 1;
+		$attack_min3 = $attack_min3 < 0 ? 1 : $attack_min3;
+		$attack_max3 = $attack + ($attack * $per_attack_diff_3 / 100) + 1;
 
 		// thêm điều kiện thời gian offline
 		$datetime = date('Y-m-d H:i:s');
 		$datetime_min = date("Y-m-d H:i:s", strtotime("-" . $time_off_to . " minutes", strtotime($datetime)));
 		$datetime_max = date("Y-m-d H:i:s", strtotime("-" . $time_off_from . " minutes", strtotime($datetime)));
 
-		if ($sum_win >= $sum_win_conf) {
-			$player_info = $this->getPlayerId($id);
-			$player_info->sum_win = 0;
-			$player_info->save();
+		$time_off_to_2 = $time_off_to + 2880;
+		$datetime_min_2 = date("Y-m-d H:i:s", strtotime("-" . $time_off_to_2 . " minutes", strtotime($datetime)));
 
-			$otherPlayer = $this::select('id', 'attack', 'deviceid', 'coin', 'name', 'fbid', 'googleid', 'gamecenterid')
-				->where('attack', '>', $attack)->where('attack', '<', $attack_max)
-				->where('updatedate', '>=', $datetime_min)->where('updatedate', '<=', $datetime_max)
-				->get()->toArray();
-			if ($otherPlayer) {
-				return $otherPlayer;
-			} else {
-				$otherPlayer = $this::select('id', 'attack', 'deviceid', 'coin', 'name', 'fbid', 'googleid', 'gamecenterid')
-					->where('attack', '>', $attack)->where('attack', '<', $attack_max)
-					->get()->toArray();
-				if ($otherPlayer) {
-					return $otherPlayer;
-				} else {
-					$otherPlayer = $this::select('id', 'attack', 'deviceid', 'coin', 'name', 'fbid', 'googleid', 'gamecenterid')
-						->where('attack', '>', $attack)
-						->get()->toArray();
-
-					return $otherPlayer;
-				}
-			}
-		}
+		$datetoday = date('Y-m-d');
+		$dateattack_from = $datetoday . " 00:00:00";
+		$dateattack_to = $datetoday . " 23:59:59";
+		$datetoday_2 = date('Y-m-d', strtotime($datetoday . " -2 day"));
+		$dateattack_to_2 = $datetoday_2 . " 23:59:59";
 
 		if ($sum_lose >= $sum_lose_conf) {
 			$player_info = $this->getPlayerId($id);
 			$player_info->sum_lose = 0;
 			$player_info->save();
 
-			$otherPlayer = $this::select('id', 'attack', 'deviceid', 'coin', 'name', 'fbid', 'googleid', 'gamecenterid')
-				->where('attack', '>', $attack_min)->where('attack', '<', $attack)
-				->where('updatedate', '>=', $datetime_min)->where('updatedate', '<=', $datetime_max)
-				->get()->toArray();
-			if ($otherPlayer) {
-				return $otherPlayer;
-			} else {
-				$otherPlayer = $this::select('id', 'attack', 'deviceid', 'coin', 'name', 'fbid', 'googleid', 'gamecenterid')
-					->where('attack', '>', $attack_min)->where('attack', '<', $attack)
-					->get()->toArray();
+			$arrid[$id] = $id;
+			$otherPlayer = $this->queryRandom($arrid, $attack_min2, $attack, $datetime_min_2, $datetime_max, $dateattack_from, $dateattack_to_2)->get()->toArray();
+			if (count($otherPlayer) < 9) {
 				if ($otherPlayer) {
-					return $otherPlayer;
-				} else {
-					$otherPlayer = $this::select('id', 'attack', 'deviceid', 'coin', 'name', 'fbid', 'googleid', 'gamecenterid')
-						->where('attack', '>', 0)
-						->where('attack', '<', $attack)
-						->get()->toArray();
+					foreach ($otherPlayer as $item) {
+						$arrid[$item['id']] = $item['id'];
+					}
+				}
+				$otherPlayer_2 = $this->queryRandom_ko_matchlog($arrid, $attack_min2, $attack, $datetime_min_2, $datetime_max)->get()->toArray();
+				$otherPlayer = array_merge($otherPlayer, $otherPlayer_2);
+			}
 
-					return $otherPlayer;
+			if (count($otherPlayer) < 9) {
+				if ($otherPlayer) {
+					foreach ($otherPlayer as $item) {
+						$arrid[$item['id']] = $item['id'];
+					}
+				}
+				$otherPlayer_2 = $this->queryRandom_ko_matchlog($arrid, $attack_min3, $attack, $datetime_min_2, $datetime_max)->get()->toArray();
+				$otherPlayer = array_merge($otherPlayer, $otherPlayer_2);
+			}
+
+			if (count($otherPlayer) < 9) {
+				if ($otherPlayer) {
+					foreach ($otherPlayer as $item) {
+						$arrid[$item['id']] = $item['id'];
+					}
+				}
+				$otherPlayer_2 = $this->queryRandom_ko_matchlog($arrid, $attack_min3, $attack, '', '')->limit(50)->get()->toArray();
+				$otherPlayer = array_merge($otherPlayer, $otherPlayer_2);
+			}
+
+			if (count($otherPlayer) < 9) {
+				if ($otherPlayer) {
+					foreach ($otherPlayer as $item) {
+						$arrid[$item['id']] = $item['id'];
+					}
+				}
+				$otherPlayer_2 = $this->queryRandom_ko_matchlog($arrid, 1, $attack, '', '')->limit(50)->get()->toArray();
+				$otherPlayer = array_merge($otherPlayer, $otherPlayer_2);
+			}
+
+			return $otherPlayer;
+		}
+
+		if ($sum_win >= $sum_win_conf) {
+			$player_info = $this->getPlayerId($id);
+			$player_info->sum_win = 0;
+			$player_info->save();
+
+			$arrid[$id] = $id;
+			$otherPlayer = $this->queryRandom($arrid, $attack, $attack_max, $datetime_min_2, $datetime_max, $dateattack_from, $dateattack_to_2)->get()->toArray();
+			if (count($otherPlayer) < 9) {
+				if ($otherPlayer) {
+					foreach ($otherPlayer as $item) {
+						$arrid[$item['id']] = $item['id'];
+					}
+				}
+				$otherPlayer_2 = $this->queryRandom_ko_matchlog($arrid, $attack, $attack_max2, $datetime_min_2, $datetime_max)->get()->toArray();
+				$otherPlayer = array_merge($otherPlayer, $otherPlayer_2);
+			}
+
+			if (count($otherPlayer) < 9) {
+				if ($otherPlayer) {
+					foreach ($otherPlayer as $item) {
+						$arrid[$item['id']] = $item['id'];
+					}
+				}
+				$otherPlayer_2 = $this->queryRandom_ko_matchlog($arrid, $attack, $attack_max3, $datetime_min_2, $datetime_max)->get()->toArray();
+				$otherPlayer = array_merge($otherPlayer, $otherPlayer_2);
+			}
+
+			if (count($otherPlayer) < 9) {
+				if ($otherPlayer) {
+					foreach ($otherPlayer as $item) {
+						$arrid[$item['id']] = $item['id'];
+					}
+				}
+				$otherPlayer_2 = $this->queryRandom_ko_matchlog($arrid, $attack_min3, $attack_max3, '', '')->limit(50)->get()->toArray();
+				$otherPlayer = array_merge($otherPlayer, $otherPlayer_2);
+			}
+
+			if (count($otherPlayer) < 9) {
+				if ($otherPlayer) {
+					foreach ($otherPlayer as $item) {
+						$arrid[$item['id']] = $item['id'];
+					}
+				}
+				$otherPlayer_2 = $this->queryRandom_ko_matchlog($arrid, $attack_min3, '', '', '')->limit(50)->get()->toArray();
+				$otherPlayer = array_merge($otherPlayer, $otherPlayer_2);
+			}
+
+			if (count($otherPlayer) < 9) {
+				if ($otherPlayer) {
+					foreach ($otherPlayer as $item) {
+						$arrid[$item['id']] = $item['id'];
+					}
+				}
+				$otherPlayer_2 = $this->queryRandom_ko_matchlog($arrid, 1, $attack_max3, '', '')->limit(50)->get()->toArray();
+				$otherPlayer = array_merge($otherPlayer, $otherPlayer_2);
+			}
+
+			return $otherPlayer;
+		}
+
+		$arrid[$id] = $id;
+		// lớn
+		$otherPlayer = $this->queryRandom($arrid, $attack, $attack_max, $datetime_min, $datetime_max, $dateattack_from, $dateattack_to)->get()->toArray();
+		if (count($otherPlayer) < 15) {
+			if ($otherPlayer) {
+				foreach ($otherPlayer as $item) {
+					$arrid[$item['id']] = $item['id'];
 				}
 			}
+			$otherPlayer_2 = $this->queryRandom($arrid, $attack, $attack_max2, $datetime_min_2, $datetime_max, $dateattack_from, $dateattack_to)->get()->toArray();
+			$otherPlayer = array_merge($otherPlayer, $otherPlayer_2);
 		}
 
-		$otherPlayer = $this::select('id', 'attack', 'deviceid', 'coin', 'name', 'fbid', 'googleid', 'gamecenterid')
-			->where('attack', '>', $attack_min)->where('attack', '<', $attack_max)
-			->where('updatedate', '>=', $datetime_min)->where('updatedate', '<=', $datetime_max)
-			->where('id', '<>', $id)
-			->get()->toArray();
-		if ($otherPlayer) {
-			return $otherPlayer;
-		} else {
-			$otherPlayer = $this::select('id', 'attack', 'deviceid', 'coin', 'name', 'fbid', 'googleid', 'gamecenterid')
-				->where('attack', '>', $attack_min)->where('attack', '<', $attack_max)
-				->where('id', '<>', $id)
-				->get()->toArray();
+		if (count($otherPlayer) < 15) {
 			if ($otherPlayer) {
-				return $otherPlayer;
-			} else {
-				$otherPlayer = $this::select('id', 'attack', 'deviceid', 'coin', 'name', 'fbid', 'googleid', 'gamecenterid')
-					->where('id', '<>', $id)
-					->where('attack', '>', 0)
-					->get()->toArray();
+				foreach ($otherPlayer as $item) {
+					$arrid[$item['id']] = $item['id'];
+				}
+			}
+			$otherPlayer_2 = $this->queryRandom($arrid, $attack, $attack_max2, $datetime_min_2, $datetime_max, $dateattack_to, $dateattack_to_2)->get()->toArray();
+			$otherPlayer = array_merge($otherPlayer, $otherPlayer_2);
+		}
 
-				return $otherPlayer;
+		if (count($otherPlayer) < 15) {
+			if ($otherPlayer) {
+				foreach ($otherPlayer as $item) {
+					$arrid[$item['id']] = $item['id'];
+				}
+			}
+			$otherPlayer_2 = $this->queryRandom_ko_matchlog($arrid, $attack, $attack_max, $datetime_min, $datetime_max)->get()->toArray();
+			$otherPlayer = array_merge($otherPlayer, $otherPlayer_2);
+		}
+
+		if (count($otherPlayer) < 15) {
+			if ($otherPlayer) {
+				foreach ($otherPlayer as $item) {
+					$arrid[$item['id']] = $item['id'];
+				}
+			}
+			$otherPlayer_2 = $this->queryRandom_ko_matchlog($arrid, $attack, $attack_max2, $datetime_min_2, $datetime_max)->get()->toArray();
+			$otherPlayer = array_merge($otherPlayer, $otherPlayer_2);
+		}
+
+		if (count($otherPlayer) < 15) {
+			if ($otherPlayer) {
+				foreach ($otherPlayer as $item) {
+					$arrid[$item['id']] = $item['id'];
+				}
+			}
+			$otherPlayer_2 = $this->queryRandom_ko_matchlog($arrid, $attack, $attack_max3, $datetime_min_2, $datetime_max)->get()->toArray();
+			$otherPlayer = array_merge($otherPlayer, $otherPlayer_2);
+		}
+
+		if (count($otherPlayer) > 15) {
+			$numran = count($otherPlayer) - 15;
+			$arr_ran = array_rand($otherPlayer, $numran);
+			if (is_array($arr_ran)) {
+				foreach ($arr_ran as $key) {
+					unset($otherPlayer[$key]);
+				}
+			} else {
+				unset($otherPlayer[$arr_ran]);
 			}
 		}
+
+		// bé
+		$otherPlayer_be = $this->queryRandom($arrid, $attack_min, $attack, $datetime_min, $datetime_max, $dateattack_from, $dateattack_to)->get()->toArray();
+		if (count($otherPlayer_be) < 15) {
+			if ($otherPlayer_be) {
+				foreach ($otherPlayer_be as $item) {
+					$arrid[$item['id']] = $item['id'];
+				}
+			}
+			$otherPlayer_2 = $this->queryRandom($arrid, $attack_min2, $attack, $datetime_min_2, $datetime_max, $dateattack_from, $dateattack_to)->get()->toArray();
+			$otherPlayer_be = array_merge($otherPlayer_be, $otherPlayer_2);
+		}
+
+		if (count($otherPlayer_be) < 15) {
+			if ($otherPlayer_be) {
+				foreach ($otherPlayer_be as $item) {
+					$arrid[$item['id']] = $item['id'];
+				}
+			}
+			$otherPlayer_2 = $this->queryRandom($arrid, $attack_min2, $attack, $datetime_min_2, $datetime_max, $dateattack_to, $dateattack_to_2)->get()->toArray();
+			$otherPlayer_be = array_merge($otherPlayer_be, $otherPlayer_2);
+		}
+
+		if (count($otherPlayer_be) < 15) {
+			if ($otherPlayer_be) {
+				foreach ($otherPlayer_be as $item) {
+					$arrid[$item['id']] = $item['id'];
+				}
+			}
+			$otherPlayer_2 = $this->queryRandom_ko_matchlog($arrid, $attack_min, $attack, $datetime_min, $datetime_max)->get()->toArray();
+			$otherPlayer_be = array_merge($otherPlayer_be, $otherPlayer_2);
+		}
+
+		if (count($otherPlayer_be) < 15) {
+			if ($otherPlayer_be) {
+				foreach ($otherPlayer_be as $item) {
+					$arrid[$item['id']] = $item['id'];
+				}
+			}
+			$otherPlayer_2 = $this->queryRandom_ko_matchlog($arrid, $attack_min2, $attack, $datetime_min_2, $datetime_max)->get()->toArray();
+			$otherPlayer_be = array_merge($otherPlayer_be, $otherPlayer_2);
+		}
+
+		if (count($otherPlayer_be) < 15) {
+			if ($otherPlayer_be) {
+				foreach ($otherPlayer_be as $item) {
+					$arrid[$item['id']] = $item['id'];
+				}
+			}
+			$otherPlayer_2 = $this->queryRandom_ko_matchlog($arrid, $attack_min3, $attack, $datetime_min_2, $datetime_max)->get()->toArray();
+			$otherPlayer_be = array_merge($otherPlayer_be, $otherPlayer_2);
+		}
+
+		if (count($otherPlayer_be) > 15) {
+			$numran = count($otherPlayer_be) - 15;
+			$arr_ran = array_rand($otherPlayer_be, $numran);
+			if (is_array($arr_ran)) {
+				foreach ($arr_ran as $key) {
+					unset($otherPlayer_be[$key]);
+				}
+			} else {
+				unset($otherPlayer_be[$arr_ran]);
+			}
+		}
+
+		$otherPlayer = array_merge($otherPlayer, $otherPlayer_be);
+
+		if (count($otherPlayer) < 15) {
+			if ($otherPlayer) {
+				foreach ($otherPlayer as $item) {
+					$arrid[$item['id']] = $item['id'];
+				}
+			}
+			$otherPlayer_2 = $this->queryRandom_ko_matchlog($arrid, 1, '', $datetime_min_2, $datetime_max)->limit(50)->get()->toArray();
+			$otherPlayer = array_merge($otherPlayer, $otherPlayer_2);
+		}
+
+		if (count($otherPlayer) < 15) {
+			if ($otherPlayer) {
+				foreach ($otherPlayer as $item) {
+					$arrid[$item['id']] = $item['id'];
+				}
+			}
+			$otherPlayer_2 = $this->queryRandom_ko_matchlog($arrid, 1, '', '', '')->limit(50)->get()->toArray();
+			$otherPlayer = array_merge($otherPlayer, $otherPlayer_2);
+		}
+
+		return $otherPlayer;
+	}
+
+	public function queryRandom($arrid, $attack_min, $attack_max, $datetime_min, $datetime_max, $dateattack_from, $dateattack_to)
+	{
+		$otherPlayer = $this::join('matchlog_2', 'player_2.id', '=', 'matchlog_2.useridattack')
+			->select('player_2.id as id', 'player_2.attack as attack', 'player_2.deviceid as deviceid', 'player_2.coin as coin', 'player_2.name as name', 'player_2.fbid as fbid', 'player_2.googleid as googleid', 'player_2.gamecenterid as gamecenterid')
+			->where('player_2.attack', '>=', $attack_min)
+			->where('player_2.attack', '<', $attack_max)
+			->where('player_2.updatedate', '>=', $datetime_min)
+			->where('player_2.updatedate', '<=', $datetime_max)
+			->where('matchlog_2.createdate', '>=', $dateattack_from)
+			->where('matchlog_2.createdate', '<=', $dateattack_to)
+			->whereNotIn('player_2.id', $arrid)
+			->groupBy('player_2.id');
+
+		return $otherPlayer;
+	}
+
+	public function queryRandom_ko_matchlog($arrid, $attack_min, $attack_max, $datetime_min, $datetime_max)
+	{
+		$otherPlayer = $this::select('id', 'attack', 'deviceid', 'coin', 'name', 'fbid', 'googleid', 'gamecenterid');
+		if (!empty($attack_min)) {
+			$otherPlayer->where('attack', '>=', $attack_min);
+		}
+		if (!empty($attack_max)) {
+			$otherPlayer->where('attack', '<', $attack_max);
+		}
+		if (!empty($datetime_min)) {
+			$otherPlayer->where('updatedate', '>=', $datetime_min);
+		}
+		if (!empty($datetime_max)) {
+			$otherPlayer->where('updatedate', '<=', $datetime_max);
+		}
+
+		$otherPlayer->whereNotIn('id', $arrid)
+			->groupBy('id');
+
+		return $otherPlayer;
+	}
+
+	public function getAllPlayerEmptyName()
+	{
+		$player = $this::select('name', 'id')->where('name', '=', '')->get()->toArray();
+
+		return $player;
 	}
 
 	public function testConfig()
@@ -315,6 +603,159 @@ class player_2 extends Model
 		$otherPlayer = $this::select('id1', 'attack', 'deviceid', 'coin')->where('id', '<>', $per_attack_diff)->get()->toArray();
 
 		return $otherPlayer;
+	}
+
+
+	public function getOtherPlayerRandomBackup($id, $attack, $sum_win, $sum_lose)
+	{
+		$path_config = asset('/config_file/config.json');
+		$config_content = json_decode(file_get_contents($path_config), true);
+		$per_attack_diff = empty($config_content['per_attack_diff']) ? 10 : $config_content['per_attack_diff'];
+		$time_off_from = empty($config_content['time_off_from']) ? 5 : $config_content['time_off_from'];
+		$time_off_to = empty($config_content['time_off_to']) ? 4320 : $config_content['time_off_to'];
+		$sum_win_conf = empty($config_content['sum_win']) ? 5 : $config_content['sum_win'];
+		$sum_lose_conf = empty($config_content['sum_lose']) ? 5 : $config_content['sum_lose'];
+
+		$attack_min = $attack - ($attack * $per_attack_diff / 100) - 1;
+		$attack_min = $attack_min < 0 ? 0 : $attack_min;
+		$attack_max = $attack + ($attack * $per_attack_diff / 100) + 1;
+
+		$per_attack_diff_2 = $per_attack_diff + 10;
+		$attack_min2 = $attack - ($attack * $per_attack_diff_2 / 100) - 1;
+		$attack_min2 = $attack_min2 < 0 ? 0 : $attack_min2;
+		$attack_max2 = $attack + ($attack * $per_attack_diff_2 / 100) + 1;
+
+		// thêm điều kiện thời gian offline
+		$datetime = date('Y-m-d H:i:s');
+		$datetime_min = date("Y-m-d H:i:s", strtotime("-" . $time_off_to . " minutes", strtotime($datetime)));
+		$datetime_max = date("Y-m-d H:i:s", strtotime("-" . $time_off_from . " minutes", strtotime($datetime)));
+
+		$time_off_to_2 = $time_off_to + 2880;
+		$datetime_min_2 = date("Y-m-d H:i:s", strtotime("-" . $time_off_to_2 . " minutes", strtotime($datetime)));
+
+		if ($sum_win >= $sum_win_conf) {
+			$player_info = $this->getPlayerId($id);
+			$player_info->sum_win = 0;
+			$player_info->save();
+
+			$otherPlayer = $this::select('id', 'attack', 'deviceid', 'coin', 'name', 'fbid', 'googleid', 'gamecenterid')
+				->where('attack', '>', $attack)->where('attack', '<', $attack_max)
+				->where('updatedate', '>=', $datetime_min)->where('updatedate', '<=', $datetime_max)
+				->get()->toArray();
+			if ($otherPlayer) {
+				return $otherPlayer;
+			} else {
+				$otherPlayer = $this::select('id', 'attack', 'deviceid', 'coin', 'name', 'fbid', 'googleid', 'gamecenterid')
+					->where('attack', '>', $attack)->where('attack', '<', $attack_max)
+					->get()->toArray();
+				if ($otherPlayer) {
+					return $otherPlayer;
+				} else {
+					$otherPlayer = $this::select('id', 'attack', 'deviceid', 'coin', 'name', 'fbid', 'googleid', 'gamecenterid')
+						->where('attack', '>', $attack)
+						->get()->toArray();
+
+					if ($otherPlayer) {
+						return $otherPlayer;
+					} else {
+						$otherPlayer = $this::select('id', 'attack', 'deviceid', 'coin', 'name', 'fbid', 'googleid', 'gamecenterid')
+							->where('id', '<>', $id)
+							->where('attack', '>', 0)
+							->get()->toArray();
+
+						return $otherPlayer;
+					}
+				}
+			}
+		}
+
+		if ($sum_lose >= $sum_lose_conf) {
+			$player_info = $this->getPlayerId($id);
+			$player_info->sum_lose = 0;
+			$player_info->save();
+
+			$otherPlayer = $this::select('id', 'attack', 'deviceid', 'coin', 'name', 'fbid', 'googleid', 'gamecenterid')
+				->where('attack', '>', $attack_min)->where('attack', '<', $attack)
+				->where('updatedate', '>=', $datetime_min)->where('updatedate', '<=', $datetime_max)
+				->get()->toArray();
+			if ($otherPlayer) {
+				return $otherPlayer;
+			} else {
+				$otherPlayer = $this::select('id', 'attack', 'deviceid', 'coin', 'name', 'fbid', 'googleid', 'gamecenterid')
+					->where('attack', '>', $attack_min)->where('attack', '<', $attack)
+					->get()->toArray();
+				if ($otherPlayer) {
+					return $otherPlayer;
+				} else {
+					$otherPlayer = $this::select('id', 'attack', 'deviceid', 'coin', 'name', 'fbid', 'googleid', 'gamecenterid')
+						->where('attack', '>', 0)
+						->where('attack', '<', $attack)
+						->get()->toArray();
+
+					if ($otherPlayer) {
+						return $otherPlayer;
+					} else {
+						$otherPlayer = $this::select('id', 'attack', 'deviceid', 'coin', 'name', 'fbid', 'googleid', 'gamecenterid')
+							->where('id', '<>', $id)
+							->where('attack', '>', 0)
+							->get()->toArray();
+
+						return $otherPlayer;
+					}
+				}
+			}
+		}
+
+		$otherPlayer = $this::select('id', 'attack', 'deviceid', 'coin', 'name', 'fbid', 'googleid', 'gamecenterid')
+			->where('attack', '>', $attack_min)->where('attack', '<', $attack_max)
+			->where('updatedate', '>=', $datetime_min)->where('updatedate', '<=', $datetime_max)
+			->where('id', '<>', $id)
+			->get()->toArray();
+		if ($otherPlayer) {
+			return $otherPlayer;
+		} else {
+			$otherPlayer = $this::select('id', 'attack', 'deviceid', 'coin', 'name', 'fbid', 'googleid', 'gamecenterid')
+				->where('attack', '>', $attack_min2)->where('attack', '<', $attack_max2)
+				->where('updatedate', '>=', $datetime_min)->where('updatedate', '<=', $datetime_max)
+				->where('id', '<>', $id)
+				->get()->toArray();
+			if ($otherPlayer) {
+				return $otherPlayer;
+			} else {
+				$otherPlayer = $this::select('id', 'attack', 'deviceid', 'coin', 'name', 'fbid', 'googleid', 'gamecenterid')
+					->where('attack', '>', $attack_min)->where('attack', '<', $attack_max)
+					->where('updatedate', '>=', $datetime_min_2)->where('updatedate', '<=', $datetime_max)
+					->where('id', '<>', $id)
+					->get()->toArray();
+				if ($otherPlayer) {
+					return $otherPlayer;
+				} else {
+					$otherPlayer = $this::select('id', 'attack', 'deviceid', 'coin', 'name', 'fbid', 'googleid', 'gamecenterid')
+						->where('attack', '>', $attack_min2)->where('attack', '<', $attack_max2)
+						->where('updatedate', '>=', $datetime_min_2)->where('updatedate', '<=', $datetime_max)
+						->where('id', '<>', $id)
+						->get()->toArray();
+					if ($otherPlayer) {
+						return $otherPlayer;
+					} else {
+						$otherPlayer = $this::select('id', 'attack', 'deviceid', 'coin', 'name', 'fbid', 'googleid', 'gamecenterid')
+							->where('attack', '>', $attack_min)->where('attack', '<', $attack_max)
+							->where('id', '<>', $id)
+							->get()->toArray();
+						if ($otherPlayer) {
+							return $otherPlayer;
+						} else {
+							$otherPlayer = $this::select('id', 'attack', 'deviceid', 'coin', 'name', 'fbid', 'googleid', 'gamecenterid')
+								->where('id', '<>', $id)
+								->where('attack', '>', 0)
+								->get()->toArray();
+
+							return $otherPlayer;
+						}
+					}
+				}
+			}
+		}
 	}
 
 }

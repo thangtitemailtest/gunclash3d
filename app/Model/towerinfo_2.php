@@ -176,67 +176,62 @@ class towerinfo_2 extends Model
 		return $result;
 	}
 
-	public function updateTowerinfo($userid, $player_tower_info)
+	public function updateTowerinfo($userid, $player_tower_info, $otherdefendwarriorlost)
 	{
 		$towerinfo = $this->getTowerinfo($userid);
 		if ($towerinfo) {
 			foreach ($player_tower_info as $key => $item) {
 				if ($item['id'] == 0) {
-					if (isset($item['level'])) {
-						$towerinfo->level_maintower = $item['level'];
-					}
-					if (isset($item['coinrequire'])) {
-						$towerinfo->coinrequire_maintower = $item['coinrequire'];
-					}
-					if (isset($item['isDestroyed'])) {
-						$towerinfo->isdestroyed_maintower = $item['isDestroyed'];
+					if (isset($item['levellost'])) {
+						$levellost = empty($item['levellost']) ? 0 : $item['levellost'];
+						$level = empty($towerinfo->level_maintower) ? 0 : $towerinfo->level_maintower;
+						$level_tru = $level - $levellost;
+						if ($level_tru < 0) $level_tru = 1;
+						$towerinfo->level_maintower = $level_tru;
 					}
 				}
 				if ($item['id'] == 1) {
-					if (isset($item['level'])) {
-						$towerinfo->level_warriortower = $item['level'];
-					}
-					if (isset($item['coinrequire'])) {
-						$towerinfo->coinrequire_warriortower = $item['coinrequire'];
-					}
-					if (isset($item['isDestroyed'])) {
-						$towerinfo->isdestroyed_warriortower = $item['isDestroyed'];
+					if (isset($item['levellost'])) {
+						$levellost = empty($item['levellost']) ? 0 : $item['levellost'];
+						$level = empty($towerinfo->level_warriortower) ? 0 : $towerinfo->level_warriortower;
+						$level_tru = $level - $levellost;
+						if ($level_tru < 0) $level_tru = 1;
+						$towerinfo->level_warriortower = $level_tru;
 					}
 				}
 				if ($item['id'] == 2) {
-					if (isset($item['level'])) {
-						$towerinfo->level_herotower = $item['level'];
-					}
-					if (isset($item['coinrequire'])) {
-						$towerinfo->coinrequire_herotower = $item['coinrequire'];
-					}
-					if (isset($item['isDestroyed'])) {
-						$towerinfo->isdestroyed_herotower = $item['isDestroyed'];
+					if (isset($item['levellost'])) {
+						$levellost = empty($item['levellost']) ? 0 : $item['levellost'];
+						$level = empty($towerinfo->level_herotower) ? 0 : $towerinfo->level_herotower;
+						$level_tru = $level - $levellost;
+						if ($level_tru < 0) $level_tru = 1;
+						$towerinfo->level_herotower = $level_tru;
 					}
 				}
 				if ($item['id'] == 3) {
-					if (isset($item['level'])) {
-						$towerinfo->level_defendtower1 = $item['level'];
-					}
-					if (isset($item['coinrequire'])) {
-						$towerinfo->coinrequire_defendtower1 = $item['coinrequire'];
-					}
-					if (isset($item['isDestroyed'])) {
-						$towerinfo->isdestroyed_defendtower1 = $item['isDestroyed'];
+					if (isset($item['levellost'])) {
+						$levellost = empty($item['levellost']) ? 0 : $item['levellost'];
+						$level = empty($towerinfo->level_defendtower1) ? 0 : $towerinfo->level_defendtower1;
+						$level_tru = $level - $levellost;
+						if ($level_tru < 0) $level_tru = 1;
+						$towerinfo->level_defendtower1 = $level_tru;
 					}
 				}
 				if ($item['id'] == 4) {
-					if (isset($item['level'])) {
-						$towerinfo->level_defendtower2 = $item['level'];
-					}
-					if (isset($item['coinrequire'])) {
-						$towerinfo->coinrequire_defendtower2 = $item['coinrequire'];
-					}
-					if (isset($item['isDestroyed'])) {
-						$towerinfo->isdestroyed_defendtower2 = $item['isDestroyed'];
+					if (isset($item['levellost'])) {
+						$levellost = empty($item['levellost']) ? 0 : $item['levellost'];
+						$level = empty($towerinfo->level_defendtower2) ? 0 : $towerinfo->level_defendtower2;
+						$level_tru = $level - $levellost;
+						if ($level_tru < 0) $level_tru = 1;
+						$towerinfo->level_defendtower2 = $level_tru;
 					}
 				}
 			}
+			$defendwarrior = $towerinfo->defendwarrior;
+			$otherdefendwarriorlost = empty($otherdefendwarriorlost) ? 0 : $otherdefendwarriorlost;
+			$defendwarrior_tru = $defendwarrior - $otherdefendwarriorlost;
+			if ($defendwarrior_tru < 0) $defendwarrior_tru = 0;
+			$towerinfo->defendwarrior = $defendwarrior_tru;
 			$towerinfo->save();
 		}
 

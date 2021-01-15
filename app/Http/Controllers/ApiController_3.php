@@ -2,21 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Model\player;
-use App\Model\towerinfo;
-use App\Model\matchlog;
-use App\Model\loggunclash;
 use App\Model\config;
+use App\Model\loggunclash_3;
+use App\Model\matchlog_3;
+use App\Model\player_3;
+use App\Model\towerinfo_3;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
-class ApiController extends Controller
+class ApiController_3 extends Controller
 {
 	function getServicelogin(Request $request)
 	{
 		$param = $request->all();
 
-		$player = new player();
+		$player = new player_3();
 		$player_info = $player->insertUser($param);
 
 		$coin = $player_info['coin'];
@@ -33,14 +33,14 @@ class ApiController extends Controller
 
 		$arr_attack = [];
 
-		$playertower = new towerinfo();
+		$playertower = new towerinfo_3();
 		$check_play_tower_info = $playertower->getTowerinfo($userid);
 		if (!$check_play_tower_info) {
 			$playertower->insertTowerinfo($userid);
 			$player_tower_info = $playertower->getTowerinfoArray0();
 		} else {
 			$player_tower_info = $playertower->getTowerinfoArray($userid);
-			$matchlog = new matchlog();
+			$matchlog = new matchlog_3();
 			$matchlog_listdataattack = $matchlog->getListDataAttack($userid);
 			if ($matchlog_listdataattack) {
 				foreach ($matchlog_listdataattack as $item_matchlog) {
@@ -105,11 +105,11 @@ class ApiController extends Controller
 		$defendwarrior = isset($param['defendwarrior']) ? $param['defendwarrior'] : 0;
 		$username = isset($param['username']) ? $param['username'] : '';
 
-		$player = new player();
+		$player = new player_3();
 		$userInfo_id = $player->updateUserinfo($userid, $coin, $attack, $username);
 
 		if ($userInfo_id) {
-			$towerinfo = new towerinfo();
+			$towerinfo = new towerinfo_3();
 			$towerinfo->updateTowerinfo2($userInfo_id, $player_tower_info_building, $world, $attackwarrior, $defendwarrior);
 		} else {
 			$message = "Userid not found";
@@ -131,7 +131,7 @@ class ApiController extends Controller
 		$status = 1;
 		$message = '';
 
-		$player = new player();
+		$player = new player_3();
 		$player_info = $player->getPlayer($userid);
 		if ($player_info) {
 			$coin = $player_info->coin;
@@ -148,9 +148,9 @@ class ApiController extends Controller
 
 			//$arr_attack = [];
 
-			$playertower = new towerinfo();
+			$playertower = new towerinfo_3();
 			$player_tower_info = $playertower->getTowerinfoArray($userid_idplayer);
-			$matchlog = new matchlog();
+			$matchlog = new matchlog_3();
 			$matchlog_listdataattack = $matchlog->getListDataAttack($userid_idplayer);
 			if ($matchlog_listdataattack) {
 				foreach ($matchlog_listdataattack as $item_matchlog) {
@@ -209,7 +209,7 @@ class ApiController extends Controller
 
 		$status = 1;
 		$message = '';
-		$player = new player();
+		$player = new player_3();
 		$player_info = $player->getPlayer($userid);
 		if ($player_info) {
 			$attack = empty($player_info->attack) ? 0 : $player_info->attack;
@@ -217,7 +217,7 @@ class ApiController extends Controller
 			$sum_win = empty($player_info->sum_win) ? 0 : $player_info->sum_win;
 			$sum_lose = empty($player_info->sum_lose) ? 0 : $player_info->sum_lose;
 
-			$towerinfo = new towerinfo();
+			$towerinfo = new towerinfo_3();
 			$result['playerbuilding'] = [];
 			$otherPlayer = $player->getOtherPlayerRandom($userid_idplayer, $attack, $sum_win, $sum_lose);
 			if ($otherPlayer) {
@@ -229,7 +229,6 @@ class ApiController extends Controller
 				$userid_other_username = $otherPlayer['name'];
 				$attack_other = $otherPlayer['attack'];
 				$coin_other = $otherPlayer['coin'];
-				if ($coin_other > 500000) $coin_other = 500000;
 				$otherTowerinfo = $towerinfo->getTowerinfoArray($userid_other);
 
 				$result['playerbuilding'] = $otherTowerinfo;
@@ -260,7 +259,7 @@ class ApiController extends Controller
 
 		$status = 1;
 		$message = '';
-		$player = new player();
+		$player = new player_3();
 		$player_info = $player->getPlayer($userid);
 		if ($player_info) {
 			$attack = empty($player_info->attack) ? 0 : $player_info->attack;
@@ -268,7 +267,7 @@ class ApiController extends Controller
 			$sum_win = empty($player_info->sum_win) ? 0 : $player_info->sum_win;
 			$sum_lose = empty($player_info->sum_lose) ? 0 : $player_info->sum_lose;
 
-			$towerinfo = new towerinfo();
+			$towerinfo = new towerinfo_3();
 			$result['players'] = [];
 			$otherPlayer = $player->getOtherPlayerRandom($userid_idplayer, $attack, $sum_win, $sum_lose);
 			if ($otherPlayer) {
@@ -290,7 +289,6 @@ class ApiController extends Controller
 						$userid_other_username = $otherPlayer_random['name'];
 						$attack_other = $otherPlayer_random['attack'];
 						$coin_other = $otherPlayer_random['coin'];
-						if ($coin_other > 500000) $coin_other = 500000;
 						$otherTowerinfo = $towerinfo->getTowerinfoArray2($userid_other);
 						$otherPlayerbuilding = $otherTowerinfo['player_tower_info'];
 						$world = $otherTowerinfo['world'];
@@ -320,7 +318,6 @@ class ApiController extends Controller
 					$userid_other_username = $otherPlayer_random['name'];
 					$attack_other = $otherPlayer_random['attack'];
 					$coin_other = $otherPlayer_random['coin'];
-					if ($coin_other > 500000) $coin_other = 500000;
 					$otherTowerinfo = $towerinfo->getTowerinfoArray2($userid_other);
 					$otherPlayerbuilding = $otherTowerinfo['player_tower_info'];
 					$world = $otherTowerinfo['world'];
@@ -362,7 +359,6 @@ class ApiController extends Controller
 		$otherTowerinfo = $request->getContent();
 		$userWin = isset($param['useridwin']) ? $param['useridwin'] : '';
 		$otherdefendwarriorlost = isset($param['otherdefendwarriorlost']) ? $param['otherdefendwarriorlost'] : 0;
-
 		$status = 1;
 
 		$otherTowerinfo = urldecode($otherTowerinfo);
@@ -405,7 +401,7 @@ class ApiController extends Controller
 			}
 		}
 
-		$player = new player();
+		$player = new player_3();
 		$playerwin = $player->getPlayer($userWin);
 		if ($playerwin) {
 			$userid_win = $playerwin->id;
@@ -415,10 +411,10 @@ class ApiController extends Controller
 		$userid_idplayer = $player->updateUserWinLose($userid, $coin, $attack, $userWin);
 		$otherUserid_idplayer = $player->updateUserWinLose($otherUserid, $otherCoin, $otherAttack, $userWin);
 
-		$towerinfo = new towerinfo();
+		$towerinfo = new towerinfo_3();
 		$towerinfo->updateTowerinfo($otherUserid_idplayer, $other_player_tower_info, $otherdefendwarriorlost);
 
-		$matchlog = new matchlog();
+		$matchlog = new matchlog_3();
 		$matchlog->insertMatchlog($userid_idplayer, $otherUserid_idplayer, $userid_win, $otherCoinLost, $level_maintower_lost, $level_warriortower_lost, $level_herotower_lost, $level_defendtower1_lost, $level_defendtower2_lost, $otherdefendwarriorlost);
 
 		$noti_obj = new Notification();
@@ -439,7 +435,6 @@ class ApiController extends Controller
 			$title = "Hey! Commander!";
 			$body = "⚔ You have attacked by " . $userdanh_name . "! Open game to view!";
 			$noti = $noti_obj->sendNoti($userbidanh_platform, $userbidanh_gcm, $title, $body);
-			Log::info($noti);
 		}
 
 		$result['status'] = $status;
@@ -455,7 +450,7 @@ class ApiController extends Controller
 		$content_get = urldecode($content_get);
 		$content_get = json_decode($content_get, true);
 
-		$loggunclash = new loggunclash();
+		$loggunclash = new loggunclash_3();
 		$loggunclash->insertLogApi($param, $content_get);
 
 		$status = 1;
@@ -473,7 +468,7 @@ class ApiController extends Controller
 		$status = 1;
 		$message = '';
 
-		$player = new player();
+		$player = new player_3();
 		$updategcmid = $player->updateGcmid($userid, $gcmid);
 
 		if (!$updategcmid) {
@@ -495,14 +490,14 @@ class ApiController extends Controller
 
 		$status = 1;
 		$message = '';
-		$player_obj = new player();
+		$player_obj = new player_3();
 		$player = $player_obj->getPlayer($userid);
 		if ($player) {
 			$id = $player->id;
 			$listLichSuDanh_arr = [];
-			$matchlog_obj = new matchlog();
+			$matchlog_obj = new matchlog_3();
 			$listLichSuDanh = $matchlog_obj->getListLichSuBiDanh($id);
-			$towerinfo = new towerinfo();
+			$towerinfo = new towerinfo_3();
 			if ($listLichSuDanh) {
 				foreach ($listLichSuDanh as $item) {
 					$arr = [];
@@ -511,13 +506,12 @@ class ApiController extends Controller
 					$time = $item->createdate;
 					if ($user_attack) {
 						$name = $user_attack->name;
-						if (empty($name)){
+						if (empty($name)) {
 							$name = $player_obj->randomNamePlayer($id_attack);
 						}
 						$deviceid = $user_attack->deviceid;
 						$attack = $user_attack->attack;
 						$coin = $user_attack->coin;
-						if ($coin > 500000) $coin = 500000;
 						$useridLogin = $player->getUseridLogin($user_attack, 'obj');
 						$otheruserid = $useridLogin['userid'];
 						$type = $useridLogin['type'];
@@ -562,14 +556,14 @@ class ApiController extends Controller
 
 		$status = 1;
 		$message = '';
-		$player_obj = new player();
+		$player_obj = new player_3();
 		$player = $player_obj->getPlayer($userid);
 		if ($player) {
 			$id = $player->id;
 			$listLichSuDanh_arr = [];
-			$matchlog_obj = new matchlog();
+			$matchlog_obj = new matchlog_3();
 			$listLichSuDanh = $matchlog_obj->getListLichSuDanh($id);
-			$towerinfo = new towerinfo();
+			$towerinfo = new towerinfo_3();
 			if ($listLichSuDanh) {
 				foreach ($listLichSuDanh as $item) {
 					$arr = [];
@@ -578,13 +572,12 @@ class ApiController extends Controller
 					$time = $item->createdate;
 					if ($user_attack) {
 						$name = $user_attack->name;
-						if (empty($name)){
+						if (empty($name)) {
 							$name = $player_obj->randomNamePlayer($id_attack);
 						}
 						$deviceid = $user_attack->deviceid;
 						$attack = $user_attack->attack;
 						$coin = $user_attack->coin;
-						if ($coin > 500000) $coin = 500000;
 						$useridLogin = $player->getUseridLogin($user_attack, 'obj');
 						$otheruserid = $useridLogin['userid'];
 						$type = $useridLogin['type'];
@@ -655,29 +648,21 @@ class ApiController extends Controller
 
 	function test()
 	{
-		set_time_limit(3600);
-
 		//$test = "%7b%22playerbuilding%22%3a%5b%7b%22id%22%3a0%2c%22level%22%3a5%7d%2c%7b%22id%22%3a2%2c%22level%22%3a5%7d%2c%7b%22id%22%3a1%2c%22level%22%3a5%7d%2c%7b%22id%22%3a3%2c%22level%22%3a5%7d%2c%7b%22id%22%3a4%2c%22level%22%3a5%7d%5d%2c%22currentcoin%22%3a1600%2c%22attack%22%3a420300%7d";
 		//$test = '{"playerbuilding":[{"id":0,"level":5},{"id":2,"level":5},{"id":1,"level":5},{"id":3,"level":5},{"id":4,"level":5}],"currentcoin":1600,"attack":420300}';
 		//$test = str_replace(['%7b','%22','%3a','%5b','%2c','%7d','%5d'], ['{','"',':','[',',','}',']'], $test);
 		//$test = urldecode($test);
 		//$test = json_decode($test, true);
 
-		/*$player_obj = new player();
-		$player = $player_obj->getAllPlayerEmptyName();
-		$dem =0;
-		foreach ($player as $item) {
-			$dem++;
-			$name = $item['name'];
-			$id = $item['id'];
+		/*$test = new player_3();
+		$test->testConfig();*/
 
-			if (empty($name)) {
-				$player_obj->randomNamePlayer($id);
-			}
+		$danhsachten = $this->DanhSachTen();
+		$tenrandom = $danhsachten[array_rand($danhsachten)];
 
-		}*/
-
-		return 1;
+		echo "<pre>";
+		print_r($tenrandom);
+		echo "</pre>";
 
 	}
 

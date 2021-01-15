@@ -4,9 +4,9 @@ namespace App\Model;
 
 use Illuminate\Database\Eloquent\Model;
 
-class matchlog extends Model
+class matchlog_3 extends Model
 {
-	protected $table = "matchlog";
+	protected $table = "matchlog_3";
 	public $timestamps = false;
 
 	public function getMatchlog($useriddefend)
@@ -18,7 +18,7 @@ class matchlog extends Model
 
 	public function insertMatchlog($userid, $otherUserid, $userWin, $coin_lost = 0, $level_maintower_lost = 0, $level_warriortower_lost = 0, $level_herotower_lost = 0, $level_defendtower1_lost = 0, $level_defendtower2_lost = 0, $otherdefendwarriorlost = 0)
 	{
-		$matchlog = new matchlog();
+		$matchlog = new matchlog_3();
 		$matchlog->useridattack = $userid;
 		$matchlog->useriddefend = $otherUserid;
 		$matchlog->useridwin = $userWin;
@@ -67,7 +67,7 @@ class matchlog extends Model
 	public function getListLichSuBiDanh($useriddefend)
 	{
 		$list = $this::where('useriddefend', '=', $useriddefend)
-			->where('useridattack','<>',0)
+			->where('useridattack', '<>', 0)
 			->groupBy('useridattack')
 			->orderBy('id', 'DESC')->limit(30)->get();
 
@@ -77,7 +77,7 @@ class matchlog extends Model
 	public function getListLichSuDanh($useridattack)
 	{
 		$list = $this::where('useridattack', '=', $useridattack)
-			->where('useriddefend','<>',0)
+			->where('useriddefend', '<>', 0)
 			->groupBy('useriddefend')
 			->orderBy('id', 'DESC')->limit(30)->get();
 

@@ -16,7 +16,7 @@ class matchlog_2 extends Model
 		return $matchlog;
 	}
 
-	public function insertMatchlog($userid, $otherUserid, $userWin, $coin_lost = 0, $level_maintower_lost = 0, $level_warriortower_lost = 0, $level_herotower_lost = 0, $level_defendtower1_lost = 0, $level_defendtower2_lost = 0)
+	public function insertMatchlog($userid, $otherUserid, $userWin, $coin_lost = 0, $level_maintower_lost = 0, $level_warriortower_lost = 0, $level_herotower_lost = 0, $level_defendtower1_lost = 0, $level_defendtower2_lost = 0, $otherdefendwarriorlost = 0)
 	{
 		$matchlog = new matchlog_2();
 		$matchlog->useridattack = $userid;
@@ -28,6 +28,7 @@ class matchlog_2 extends Model
 		$matchlog->level_herotower_lost = $level_herotower_lost;
 		$matchlog->level_defendtower1_lost = $level_defendtower1_lost;
 		$matchlog->level_defendtower2_lost = $level_defendtower2_lost;
+		$matchlog->defendwarriorlost = $otherdefendwarriorlost;
 		$matchlog->checkgetdata = 0;
 		$matchlog->save();
 
@@ -58,7 +59,7 @@ class matchlog_2 extends Model
 	public function updateDataAttack($useriddefend)
 	{
 		$this::where('useriddefend', '=', $useriddefend)->where('checkgetdata', '=', 0)
-			->update(['checkgetdata' => 1, 'coin_lost' => 0, 'level_maintower_lost' => 0, 'level_warriortower_lost' => 0, 'level_herotower_lost' => 0, 'level_defendtower1_lost' => 0, 'level_defendtower2_lost' => 0]);
+			->update(['checkgetdata' => 1, 'coin_lost' => 0, 'level_maintower_lost' => 0, 'level_warriortower_lost' => 0, 'level_herotower_lost' => 0, 'level_defendtower1_lost' => 0, 'level_defendtower2_lost' => 0, 'defendwarriorlost' => 0]);
 
 		return 1;
 	}
@@ -67,6 +68,7 @@ class matchlog_2 extends Model
 	{
 		$list = $this::where('useriddefend', '=', $useriddefend)
 			->where('useridattack','<>',0)
+			->groupBy('useridattack')
 			->orderBy('id', 'DESC')->limit(30)->get();
 
 		return $list;
@@ -76,6 +78,7 @@ class matchlog_2 extends Model
 	{
 		$list = $this::where('useridattack', '=', $useridattack)
 			->where('useriddefend','<>',0)
+			->groupBy('useriddefend')
 			->orderBy('id', 'DESC')->limit(30)->get();
 
 		return $list;

@@ -29,6 +29,7 @@ class ApiController_2 extends Controller
 		$level_herotower_lost = 0;
 		$level_defendtower1_lost = 0;
 		$level_defendtower2_lost = 0;
+		$defendwarriorlost = 0;
 
 		$arr_attack = [];
 
@@ -49,6 +50,7 @@ class ApiController_2 extends Controller
 					$level_defendtower1_lost += $item_matchlog->level_defendtower1_lost;
 					$level_defendtower2_lost += $item_matchlog->level_defendtower2_lost;
 					$coinlost += $item_matchlog->coin_lost;
+					$defendwarriorlost += $item_matchlog->defendwarriorlost;
 
 					$useridattack = $item_matchlog->useridattack;
 					$useridattack_info = $player->getPlayerId($useridattack);
@@ -78,6 +80,7 @@ class ApiController_2 extends Controller
 		//$result['attack_username'] = "";
 		$result['currentcoin'] = $this->checkEmptynumber($coin);
 		$result['coinlost'] = $this->checkEmptynumber($coinlost);
+		$result['defendwarriorlost'] = $this->checkEmptynumber($defendwarriorlost);
 		$result['attack'] = $this->checkEmptynumber($attack);
 		$result['status'] = 1;
 
@@ -100,9 +103,10 @@ class ApiController_2 extends Controller
 		$world = isset($param['world']) ? $param['world'] : 1;
 		$attackwarrior = isset($param['attackwarrior']) ? $param['attackwarrior'] : 0;
 		$defendwarrior = isset($param['defendwarrior']) ? $param['defendwarrior'] : 0;
+		$username = isset($param['username']) ? $param['username'] : '';
 
 		$player = new player_2();
-		$userInfo_id = $player->updateUserinfo($userid, $coin, $attack);
+		$userInfo_id = $player->updateUserinfo($userid, $coin, $attack, $username);
 
 		if ($userInfo_id) {
 			$towerinfo = new towerinfo_2();
@@ -140,6 +144,7 @@ class ApiController_2 extends Controller
 			$level_herotower_lost = 0;
 			$level_defendtower1_lost = 0;
 			$level_defendtower2_lost = 0;
+			$defendwarriorlost = 0;
 
 			//$arr_attack = [];
 
@@ -155,6 +160,7 @@ class ApiController_2 extends Controller
 					$level_defendtower1_lost += $item_matchlog->level_defendtower1_lost;
 					$level_defendtower2_lost += $item_matchlog->level_defendtower2_lost;
 					$coinlost += $item_matchlog->coin_lost;
+					$defendwarriorlost += $item_matchlog->defendwarriorlost;
 
 					/*$useridattack = $item_matchlog->useridattack;
 					$useridattack_info = $player->getPlayerId($useridattack);
@@ -181,6 +187,7 @@ class ApiController_2 extends Controller
 			//$result['listattack'] = $arr_attack;
 			$result['currentcoin'] = $this->checkEmptynumber($coin);
 			$result['coinlost'] = $this->checkEmptynumber($coinlost);
+			$result['defendwarriorlost'] = $this->checkEmptynumber($defendwarriorlost);
 			$result['attack'] = $this->checkEmptynumber($attack);
 			//$result['attack_userid'] = "";
 			//$result['attack_username'] = "";
@@ -222,6 +229,7 @@ class ApiController_2 extends Controller
 				$userid_other_username = $otherPlayer['name'];
 				$attack_other = $otherPlayer['attack'];
 				$coin_other = $otherPlayer['coin'];
+				if ($coin_other > 500000) $coin_other = 500000;
 				$otherTowerinfo = $towerinfo->getTowerinfoArray($userid_other);
 
 				$result['playerbuilding'] = $otherTowerinfo;
@@ -263,12 +271,48 @@ class ApiController_2 extends Controller
 			$towerinfo = new towerinfo_2();
 			$result['players'] = [];
 			$otherPlayer = $player->getOtherPlayerRandom($userid_idplayer, $attack, $sum_win, $sum_lose);
+
 			if ($otherPlayer) {
 				// random
-				$key_random = array_rand($otherPlayer, 9);
+				$num_random = 9;
+				if (count($otherPlayer) < 9) {
+					$num_random = count($otherPlayer);
+				}
+				$key_random = array_rand($otherPlayer, $num_random);
 				// end cmt random
-				foreach ($key_random as $item_key_random) {
-					$otherPlayer_random = $otherPlayer[$item_key_random];
+				if (is_array($key_random)) {
+					foreach ($key_random as $item_key_random) {
+						$otherPlayer_random = $otherPlayer[$item_key_random];
+
+						$arr = [];
+
+						$userid_other = $otherPlayer_random['id'];
+						$userid_other_deviceid = $otherPlayer_random['deviceid'];
+						$userid_other_username = $otherPlayer_random['name'];
+						$attack_other = $otherPlayer_random['attack'];
+						$coin_other = $otherPlayer_random['coin'];
+						if ($coin_other > 500000) $coin_other = 500000;
+						$otherTowerinfo = $towerinfo->getTowerinfoArray2($userid_other);
+						$otherPlayerbuilding = $otherTowerinfo['player_tower_info'];
+						$world = $otherTowerinfo['world'];
+						$defendwarrior = $otherTowerinfo['defendwarrior'];
+
+						$arr['playerbuilding'] = $otherPlayerbuilding;
+						$arr['world'] = $world;
+						$arr['defendwarrior'] = $defendwarrior;
+						$arr['attack'] = $attack_other;
+						$arr['currentcoin'] = $coin_other;
+						$arr['otherusername'] = $userid_other_username;
+						$arr['otheruserdeviceid'] = $userid_other_deviceid;
+
+						$useridLogin = $player->getUseridLogin($otherPlayer_random, 'arr');
+						$arr['otheruserid'] = $useridLogin['userid'];
+						$arr['type'] = $useridLogin['type'];
+
+						$result['players'][] = $arr;
+					}
+				} else {
+					$otherPlayer_random = $otherPlayer[$key_random];
 
 					$arr = [];
 
@@ -277,6 +321,7 @@ class ApiController_2 extends Controller
 					$userid_other_username = $otherPlayer_random['name'];
 					$attack_other = $otherPlayer_random['attack'];
 					$coin_other = $otherPlayer_random['coin'];
+					if ($coin_other > 500000) $coin_other = 500000;
 					$otherTowerinfo = $towerinfo->getTowerinfoArray2($userid_other);
 					$otherPlayerbuilding = $otherTowerinfo['player_tower_info'];
 					$world = $otherTowerinfo['world'];
@@ -317,12 +362,13 @@ class ApiController_2 extends Controller
 		$otherUserid = isset($param['otheruserid']) ? $param['otheruserid'] : '';
 		$otherTowerinfo = $request->getContent();
 		$userWin = isset($param['useridwin']) ? $param['useridwin'] : '';
+		$otherdefendwarriorlost = isset($param['otherdefendwarriorlost']) ? $param['otherdefendwarriorlost'] : 0;
 
 		$status = 1;
 
 		$otherTowerinfo = urldecode($otherTowerinfo);
 		$otherTowerinfo = json_decode($otherTowerinfo, true);
-		$other_player_tower_info = isset($otherTowerinfo['playerbuilding']) ? $otherTowerinfo['playerbuilding'] : 0;
+		$other_player_tower_info = isset($otherTowerinfo['playerbuilding']) ? $otherTowerinfo['playerbuilding'] : [];
 		$otherAttack = isset($otherTowerinfo['attack']) ? $otherTowerinfo['attack'] : 0;
 		$otherCoin = isset($otherTowerinfo['currentcoin']) ? $otherTowerinfo['currentcoin'] : 0;
 		$otherCoinLost = isset($otherTowerinfo['coinlost']) ? $otherTowerinfo['coinlost'] : 0;
@@ -371,10 +417,10 @@ class ApiController_2 extends Controller
 		$otherUserid_idplayer = $player->updateUserWinLose($otherUserid, $otherCoin, $otherAttack, $userWin);
 
 		$towerinfo = new towerinfo_2();
-		$towerinfo->updateTowerinfo($otherUserid_idplayer, $other_player_tower_info);
+		$towerinfo->updateTowerinfo($otherUserid_idplayer, $other_player_tower_info, $otherdefendwarriorlost);
 
 		$matchlog = new matchlog_2();
-		$matchlog->insertMatchlog($userid_idplayer, $otherUserid_idplayer, $userid_win, $otherCoinLost, $level_maintower_lost, $level_warriortower_lost, $level_herotower_lost, $level_defendtower1_lost, $level_defendtower2_lost);
+		$matchlog->insertMatchlog($userid_idplayer, $otherUserid_idplayer, $userid_win, $otherCoinLost, $level_maintower_lost, $level_warriortower_lost, $level_herotower_lost, $level_defendtower1_lost, $level_defendtower2_lost, $otherdefendwarriorlost);
 
 		$noti_obj = new Notification();
 		$userdanh = $player->getPlayer($userid);
@@ -393,7 +439,8 @@ class ApiController_2 extends Controller
 		if (!empty($userbidanh_gcm)) {
 			$title = "Hey! Commander!";
 			$body = "⚔ You have attacked by " . $userdanh_name . "! Open game to view!";
-			$noti_obj->sendNoti($userbidanh_platform, $userbidanh_gcm, $title, $body);
+			$noti = $noti_obj->sendNoti($userbidanh_platform, $userbidanh_gcm, $title, $body);
+			Log::info($noti);
 		}
 
 		$result['status'] = $status;
@@ -465,9 +512,13 @@ class ApiController_2 extends Controller
 					$time = $item->createdate;
 					if ($user_attack) {
 						$name = $user_attack->name;
+						if (empty($name)) {
+							$name = $player_obj->randomNamePlayer($id_attack);
+						}
 						$deviceid = $user_attack->deviceid;
 						$attack = $user_attack->attack;
 						$coin = $user_attack->coin;
+						if ($coin > 500000) $coin = 500000;
 						$useridLogin = $player->getUseridLogin($user_attack, 'obj');
 						$otheruserid = $useridLogin['userid'];
 						$type = $useridLogin['type'];
@@ -528,9 +579,13 @@ class ApiController_2 extends Controller
 					$time = $item->createdate;
 					if ($user_attack) {
 						$name = $user_attack->name;
+						if (empty($name)) {
+							$name = $player_obj->randomNamePlayer($id_attack);
+						}
 						$deviceid = $user_attack->deviceid;
 						$attack = $user_attack->attack;
 						$coin = $user_attack->coin;
+						if ($coin > 500000) $coin = 500000;
 						$useridLogin = $player->getUseridLogin($user_attack, 'obj');
 						$otheruserid = $useridLogin['userid'];
 						$type = $useridLogin['type'];
@@ -568,6 +623,13 @@ class ApiController_2 extends Controller
 		return $result;
 	}
 
+	function DanhSachTen()
+	{
+		$arr = ['Adela', 'Adela', 'Adelaide', 'Agatha', 'Agnes', 'Alethea', 'Alida', 'Aliyah', 'Alma', 'Almira', 'Alula', 'Alva', 'Amanda', 'Amelinda', 'Amity', 'Angela', 'Annabella', 'Anthea', 'Aretha', 'Arianne', 'Artemis', 'Aubrey', 'Audrey', 'Aurelia', 'Aurora', 'Azura', 'Bernice', 'Bertha', 'Blanche', 'Brenna', 'Bridget', 'Calantha', 'Calliope', 'Celina', 'Ceridwen', 'Charmaine', 'Christabel', 'Ciara', 'Cleopatra', 'Cosima', 'Daria', 'Delwyn', 'Dilys', 'Donna', 'Doris', 'Drusilla', 'Dulcie', 'Edana', 'Edna', 'Eira', 'Eirian', 'Arian', 'Eirlys', 'Elain', 'Elfleda', 'Elfreda', 'Elysia', 'Erica', 'Ermintrude', 'Ernesta', 'Esperanza', 'Eudora', 'Eulalia', 'Eunice', 'Euphemia', 'Fallon', 'Farah', 'Felicity', 'Fidelia', 'Fidelma', 'Fiona', 'Florence', 'Genevieve', 'Gerda', 'Giselle', 'Gladys', 'Glenda', 'Godiva', 'Grainne', 'Griselda', 'Guinevere', 'Gwyneth', 'Halcyon', 'Hebe', 'Helga', 'Heulwen', 'Hypatia', 'Imelda', 'Iolanthe', 'Iphigenia', 'Isadora', 'Isolde', 'Jena', 'Jezebel', 'Jocasta', 'Jocelyn', 'Joyce', 'Kaylin', 'Keelin', 'Keisha', 'Kelsey', 'Kerenza', 'Keva', 'Kiera', 'Ladonna', 'Laelia', 'Lani', 'Latifah', 'Letitia', 'Louisa', 'Lucasta', 'Lysandra', 'Mabel', 'Maris', 'Martha', 'Meliora', 'Meredith', 'Milcah', 'Mildred', 'Mirabel', 'Miranda', 'Muriel', 'Myrna', 'Neala', 'Odette', 'Odile', 'Olwen', 'Oralie', 'Oriana', 'Orla', 'Pandora', 'Phedra', 'Philomena', 'Phoebe', 'Rowan', 'Rowena', 'Selina', 'Sigourney', 'Sigrid', 'Sophronia', 'Stella', 'Thekla', 'Theodora', 'Tryphena', 'Ula', 'Vera', 'Verity', 'Veronica', 'Viva', 'Vivian', 'Winifred', 'Xavia', 'Xenia', 'Adonis', 'Alger', 'Alva', 'Alvar', 'Amory', 'Archibald', 'Athelstan', 'Aubrey', 'Augustus', 'Aylmer', 'Baldric', 'Barrett', 'Bernard', 'Cadell', 'Cyril', 'Cyrus', 'Derek', 'Devlin', 'Dieter', 'Duncan', 'Egbert', 'Emery', 'Fergal', 'Fergus', 'Garrick', 'Geoffrey', 'Gideon', 'Griffith', 'Harding', 'Jocelyn', 'Joyce', 'Kane', 'Kelsey', 'Kenelm', 'Maynard', 'Meredith', 'Mervyn', 'Mortimer', 'Ralph', 'Randolph', 'Reginald', 'Roderick', 'Roger', 'Waldo', 'Anselm', 'Azaria', 'Basil', 'Benedict', 'Clitus', 'Cuthbert', 'Carwyn', 'Dai', 'Dominic', 'Darius', 'Edsel', 'Elmer', 'Ethelbert', 'Eugene', 'Galvin', 'Gwyn', 'Jethro', 'Magnus', 'Maximilian', 'Nolan', 'Orborne', 'Otis', 'Patrick', 'Clement', 'Curtis', 'Dermot', 'Enoch', 'Finn', 'Gregory', 'Hubert', 'Phelim', 'Bellamy', 'Bevis', 'Boniface', 'Caradoc', 'Duane', 'Flynn', 'Kieran', 'Lloyd', 'Rowan', 'Venn', 'Aidan', 'Anatole', 'Conal', 'Dalziel', 'Egan', 'Enda', 'Farley', 'Farrer', 'Lagan', 'Leighton', 'Lionel', 'Lovell', 'Phelan', 'Radley', 'Silas', 'Uri', 'Wolfgang', 'Alden', 'Alvin', 'Amyas', 'Aneurin', 'Baldwin', 'Darryl', 'Elwyn', 'Engelbert', 'Erasmus', 'Erastus', 'Goldwin', 'Oscar', 'Sherwin', 'Ambrose', 'Christopher', 'Isidore', 'Jesse', 'Jonathan', 'Osmund', 'Oswald', 'Theophilus', 'Abner', 'Baron', 'Bertram', 'Damian', 'Dante', 'Dempsey', 'Diego', 'Diggory', 'Godfrey', 'Ivor', 'Jason', 'Jasper', 'Jerome', 'Lancelot', 'Leander', 'Manfred', 'Merlin', 'Neil', 'Orson', 'Samson', 'Seward', 'Shanley', 'Siegfried', 'Sigmund', 'Stephen', 'Tadhg', 'Vincent', 'Wilfred', 'Andrew', 'Alexander', 'Walter', 'Leon', 'Leonard', 'Marcus', 'Ryder', 'Drake', 'Harvey', 'Harold', 'Charles', 'Abraham', 'Jonathan', 'Matthew', 'Michael', 'Samuel', 'Theodore', 'Timothy', 'Gabriel', 'Issac'];
+
+		return $arr;
+	}
+
 	function checkEmptynumber($number)
 	{
 		return empty($number) ? 0 : $number;
@@ -594,19 +656,37 @@ class ApiController_2 extends Controller
 
 	function test()
 	{
+		set_time_limit(3600);
 		//$test = "%7b%22playerbuilding%22%3a%5b%7b%22id%22%3a0%2c%22level%22%3a5%7d%2c%7b%22id%22%3a2%2c%22level%22%3a5%7d%2c%7b%22id%22%3a1%2c%22level%22%3a5%7d%2c%7b%22id%22%3a3%2c%22level%22%3a5%7d%2c%7b%22id%22%3a4%2c%22level%22%3a5%7d%5d%2c%22currentcoin%22%3a1600%2c%22attack%22%3a420300%7d";
 		//$test = '{"playerbuilding":[{"id":0,"level":5},{"id":2,"level":5},{"id":1,"level":5},{"id":3,"level":5},{"id":4,"level":5}],"currentcoin":1600,"attack":420300}';
 		//$test = str_replace(['%7b','%22','%3a','%5b','%2c','%7d','%5d'], ['{','"',':','[',',','}',']'], $test);
 		//$test = urldecode($test);
 		//$test = json_decode($test, true);
 
-		$test = new player_2();
-		$test->testConfig();
+		/*$test = new player_2();
+		$test->testConfig();*/
+
+		/*$danhsachten = $this->DanhSachTen();
+		$tenrandom = $danhsachten[array_rand($danhsachten)];
 
 		echo "<pre>";
-		print_r($test);
-		echo "</pre>";
+		print_r($tenrandom);
+		echo "</pre>";*/
 
+		/*$player_obj = new player_2();
+		$player = $player_obj->getAllPlayerEmptyName();
+		$dem =0;
+		foreach ($player as $item) {
+			$dem++;
+			$name = $item['name'];
+			$id = $item['id'];
+
+			if (empty($name)) {
+				$player_obj->randomNamePlayer($id);
+			}
+		}*/
+
+		return 1;
 	}
 
 }

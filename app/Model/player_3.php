@@ -2,12 +2,12 @@
 
 namespace App\Model;
 
-use App\Http\Controllers\ApiController;
+use App\Http\Controllers\ApiController_3;
 use Illuminate\Database\Eloquent\Model;
 
-class player extends Model
+class player_3 extends Model
 {
-	protected $table = "player";
+	protected $table = "player_3";
 	public $timestamps = false;
 
 	public function getUseridLogin($player, $check = 'obj')
@@ -70,7 +70,7 @@ class player extends Model
 		$player = $this->getPlayerId($id);
 		$username = '';
 		if ($player) {
-			$apicontroller = new ApiController();
+			$apicontroller = new ApiController_3();
 			$danhsachten = $apicontroller->DanhSachTen();
 			$username = $danhsachten[array_rand($danhsachten)];
 			$player->name = $username;
@@ -96,7 +96,7 @@ class player extends Model
 			$username = isset($input['username']) ? $input['username'] : '';
 			if (empty($username)) {
 				if (empty($checkplay->name)) {
-					$apicontroller = new ApiController();
+					$apicontroller = new ApiController_3();
 					$danhsachten = $apicontroller->DanhSachTen();
 					$username = $danhsachten[array_rand($danhsachten)];
 					$checkplay->name = $username;
@@ -119,10 +119,10 @@ class player extends Model
 			$result['coin'] = $checkplay->coin;
 			$result['attack'] = $checkplay->attack;
 		} else {
-			$player = new player();
+			$player = new player_3();
 			$username = isset($input['username']) ? $input['username'] : '';
 			if (empty($username)) {
-				$apicontroller = new ApiController();
+				$apicontroller = new ApiController_3();
 				$danhsachten = $apicontroller->DanhSachTen();
 				$username = $danhsachten[array_rand($danhsachten)];
 			}
@@ -178,7 +178,7 @@ class player extends Model
 			$userInfo->attack = $attack;
 			if (empty($username)) {
 				if (empty($userInfo->name)) {
-					$apicontroller = new ApiController();
+					$apicontroller = new ApiController_3();
 					$danhsachten = $apicontroller->DanhSachTen();
 					$username = $danhsachten[array_rand($danhsachten)];
 					$userInfo->name = $username;
@@ -521,16 +521,16 @@ class player extends Model
 
 	public function queryRandom($arrid, $attack_min, $attack_max, $datetime_min, $datetime_max, $dateattack_from, $dateattack_to)
 	{
-		$otherPlayer = $this::join('matchlog', 'player.id', '=', 'matchlog.useridattack')
-			->select('player.id as id', 'player.attack as attack', 'player.deviceid as deviceid', 'player.coin as coin', 'player.name as name', 'player.fbid as fbid', 'player.googleid as googleid', 'player.gamecenterid as gamecenterid')
-			->where('player.attack', '>=', $attack_min)
-			->where('player.attack', '<', $attack_max)
-			->where('player.updatedate', '>=', $datetime_min)
-			->where('player.updatedate', '<=', $datetime_max)
-			->where('matchlog.createdate', '>=', $dateattack_from)
-			->where('matchlog.createdate', '<=', $dateattack_to)
-			->whereNotIn('player.id', $arrid)
-			->groupBy('player.id');
+		$otherPlayer = $this::join('matchlog_3', 'player_3.id', '=', 'matchlog_3.useridattack')
+			->select('player_3.id as id', 'player_3.attack as attack', 'player_3.deviceid as deviceid', 'player_3.coin as coin', 'player_3.name as name', 'player_3.fbid as fbid', 'player_3.googleid as googleid', 'player_3.gamecenterid as gamecenterid')
+			->where('player_3.attack', '>=', $attack_min)
+			->where('player_3.attack', '<', $attack_max)
+			->where('player_3.updatedate', '>=', $datetime_min)
+			->where('player_3.updatedate', '<=', $datetime_max)
+			->where('matchlog_3.createdate', '>=', $dateattack_from)
+			->where('matchlog_3.createdate', '<=', $dateattack_to)
+			->whereNotIn('player_3.id', $arrid)
+			->groupBy('player_3.id');
 
 		return $otherPlayer;
 	}
@@ -555,13 +555,6 @@ class player extends Model
 			->groupBy('id');
 
 		return $otherPlayer;
-	}
-
-	public function getAllPlayerEmptyName()
-	{
-		$player = $this::select('name','id')->where('name', '=', '')->get()->toArray();
-
-		return $player;
 	}
 
 	public function testConfig()

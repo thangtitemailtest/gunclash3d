@@ -25,7 +25,7 @@ Route::post('serviceupdateotherplayertower', 'ApiController@getServiceupdateothe
 Route::post('savelogs', 'ApiController@getSavelogs')->name('get-savelogs');
 Route::post('servicegcmid', 'ApiController@getServicegcmid')->name('get-servicegcmid');
 Route::post('getlistrevenge', 'ApiController@getLichSuBiDanh')->name('get-lichsubidanh');
-Route::post('getlistattack', 'ApiController_2@getLichSuDanh')->name('get-lichsudanh');
+Route::post('getlistattack', 'ApiController@getLichSuDanh')->name('get-lichsudanh');
 
 Route::get('updateconfig', 'ApiController@updateConfig')->name('updateconfig');
 
@@ -48,6 +48,23 @@ Route::group(['prefix' => 'gun2'], function () {
 	Route::post('test', 'ApiController_2@test')->name('get-test_2');
 });
 /*END API Gun2*/
+
+/*API Gun3*/
+Route::group(['prefix' => 'gun3'], function () {
+	Route::post('servicelogin', 'ApiController_3@getServicelogin')->name('get-servicelogin_3');
+	Route::post('serviceupdatemyinfo', 'ApiController_3@getServiceupdatemyinfo')->name('get-serviceupdatemyinfo_3');
+	Route::post('servicegetmytowerinfo', 'ApiController_3@getServicegetmytowerinfo')->name('get-servicegetmytowerinfo_3');
+	Route::post('servicegetotherplayer', 'ApiController_3@getServicegetotherplayer')->name('get-servicegetotherplayer_3');
+	Route::post('servicegetotherplayernew', 'ApiController_3@getServicegetotherplayernew')->name('get-servicegetotherplayernew_3');
+	Route::post('serviceupdateotherplayertower', 'ApiController_3@getServiceupdateotherplayertower')->name('get-serviceupdateotherplayertower_3');
+	Route::post('savelogs', 'ApiController_3@getSavelogs')->name('get-savelogs_3');
+	Route::post('servicegcmid', 'ApiController_3@getServicegcmid')->name('get-servicegcmid_3');
+	Route::post('getlistrevenge', 'ApiController_3@getLichSuBiDanh')->name('get-lichsubidanh_3');
+	Route::post('getlistattack', 'ApiController_3@getLichSuDanh')->name('get-lichsudanh_3');
+
+	Route::post('test', 'ApiController_3@test')->name('get-test_3');
+});
+/*END API Gun3*/
 
 Route::get('/login', 'HomeController@getLogin')->name('get-login');
 Route::post('/login-post', 'HomeController@postLogin')->name('post-login');
